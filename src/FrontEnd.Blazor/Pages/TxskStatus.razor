@@ -1,0 +1,37 @@
+@page "/TxskStatus"
+@using Shared;
+@using Microsoft.FluentUI.AspNetCore.Components;
+@inject IDialogService DialogService
+@inject IToastService ToastService
+@inject IMessageService MessageService
+
+<PageTitle>Task Status</PageTitle>
+
+<h1>Task Status</h1>
+
+<FluentMessageBar Title="@_titleBar" Visible="@_messageBarVisible" Intent="@_messageIntent">
+    @_messageBar
+</FluentMessageBar>
+
+@if (_TxskStatuses == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <FluentToolbar>
+        <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" />
+    </FluentToolbar>
+    <FluentDataGrid Id="TxskStatusGrid" Items="@_TxskStatuses" TGridItem=TxskStatusDTO
+                    GridTemplateColumns="auto 1fr auto"
+                    ShowHover="true"
+                    RowSize="DataGridRowSize.Medium">
+        <PropertyColumn Title="Id" Property="@(c => c!.Id)" Align="Align.Center" />
+        <PropertyColumn Title="Name" Property="@(c => c!.Name)" Sortable="true" />
+        <TemplateColumn Title="Actions" Align="@Align.End">
+            <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
+            <FluentButton Title="Edit" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(() => OnEditClicked(context))" />
+            <FluentButton Title="Delete" IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))" OnClick="@(() => OnDeleteClicked(context))" />
+        </TemplateColumn>
+    </FluentDataGrid>
+}

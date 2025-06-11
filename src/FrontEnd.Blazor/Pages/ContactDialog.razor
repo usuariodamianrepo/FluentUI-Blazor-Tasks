@@ -1,0 +1,34 @@
+@using Shared
+@using System.ComponentModel.DataAnnotations
+@implements IDialogContentComponent<ContactDTO>
+
+@* Header *@
+<FluentDialogHeader ShowDismiss="true">
+    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentIcon Value="@(new Icons.Regular.Size24.WindowApps())" />
+        <FluentLabel Typo="Typography.PaneHeader">
+            @Dialog.Instance.Parameters.Title
+        </FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+
+@* Footer *@
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent" OnClick="@SaveAsync">Save</FluentButton>
+    <FluentButton Appearance="Appearance.Neutral" OnClick="@CancelAsync">Cancel</FluentButton>
+</FluentDialogFooter>
+
+@* Body *@
+<FluentDialogBody>
+    <EditForm EditContext="@_editContext" FormName="addOrEditContact">
+        <DataAnnotationsValidator />
+        <FluentTextField Label="Email" @bind-Value="@Content.Email" Maxlength=100 Size=100 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+        <FluentTextField Label="Company" @bind-Value="@Content.Company" Maxlength=100 Size=100 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+        <FluentTextField Label="LastName" @bind-Value="@Content.LastName" Maxlength=100 Size=100 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+        <FluentTextField Label="FirstName" @bind-Value="@Content.FirstName" Maxlength=100 Size=100 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+        <FluentTextField Label="Phone" @bind-Value="@Content.Phone" Maxlength=100 Size=100 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+        <div style="color: var(--error);">
+            <FluentValidationSummary />
+        </div>
+    </EditForm>
+</FluentDialogBody>

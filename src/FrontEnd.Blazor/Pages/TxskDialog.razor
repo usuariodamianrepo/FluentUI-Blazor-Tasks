@@ -1,0 +1,29 @@
+@using Shared
+@using System.ComponentModel.DataAnnotations
+@implements IDialogContentComponent<TxskDTO>
+
+@* Header *@
+<FluentDialogHeader ShowDismiss="true">
+    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <FluentIcon Value="@(new Icons.Regular.Size24.AppsListDetail())" />
+        <FluentLabel Typo="Typography.PaneHeader">
+            @Dialog.Instance.Parameters.Title
+        </FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+
+@* Footer *@
+<FluentDialogFooter>
+    <FluentButton Appearance="Appearance.Accent" OnClick="@AccentAsync">Accent</FluentButton>
+</FluentDialogFooter>
+
+@* Body *@
+<FluentDialogBody>
+    <EditForm EditContext="@_detailContext" FormName="detailsTxsk">
+        <FluentTextField Label="Title" @bind-Value="@Content.Title" Disabled/>
+        <FluentTextField Label="Contact" @bind-Value="@Content.ContactName" Disabled />
+        <FluentDatePicker Label="DueDate" @bind-Value="@Content.DueDate" Disabled />
+        <FluentTextField Label="TxskType" @bind-Value="@Content.TxskTypeName" Disabled />
+        <FluentTextField Label="TxskStatus" @bind-Value="@Content.TxskStatusName" Disabled />
+    </EditForm>
+</FluentDialogBody>

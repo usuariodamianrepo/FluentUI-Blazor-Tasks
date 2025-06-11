@@ -1,0 +1,40 @@
+﻿@page "/weather"
+@using Shared;
+@using Microsoft.FluentUI.AspNetCore.Components;
+@inject IDialogService DialogService
+@inject IToastService ToastService
+@inject IMessageService MessageService
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<FluentMessageBar Title="Descriptive title" Visible="@MessageBarVisible">
+    @MessageBar
+</FluentMessageBar>
+
+@if (Weathers == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <FluentToolbar>
+        <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" />
+    </FluentToolbar>
+    <FluentDataGrid Id="weathergrid" Items="@Weathers" TGridItem=WeatherForecastDTO
+                    GridTemplateColumns="1fr 1fr 1fr 1fr 1fr 2fr"
+                    ShowHover="true"
+                    RowSize="DataGridRowSize.Medium">
+        <PropertyColumn Title="Id" Property="@(c => c!.Id)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Title="Date" Property="@(c => c!.Date)" Sortable="true" Align="Align.Start" />
+        <PropertyColumn Title="Temp. (C)" Property="@(c => c!.TemperatureC)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Title="Temp. (F)" Property="@(c => c!.TemperatureF)" Sortable="true" Align="Align.Center" />
+        <PropertyColumn Title="Summary" Property="@(c => c!.Summary)" Sortable="true" Align="Align.Center" />
+        <TemplateColumn Title="Actions" Align="@Align.End">
+            <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
+            <FluentButton Title="Edit" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(() => OnEditClicked(context))" />
+            <FluentButton Title="Delete" IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))" OnClick="@(() => OnDeleteClicked(context))" />
+        </TemplateColumn>
+    </FluentDataGrid>
+}

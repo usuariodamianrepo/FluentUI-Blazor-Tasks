@@ -1,0 +1,44 @@
+
+@page "/Contact"
+@using Shared;
+@using Microsoft.FluentUI.AspNetCore.Components;
+@inject IDialogService DialogService
+@inject IToastService ToastService
+@inject IMessageService MessageService
+
+<PageTitle>Contact</PageTitle>
+
+<h1>Contact</h1>
+
+<FluentMessageBar Title="@_titleBar" Visible="@_messageBarVisible" Intent="@_messageIntent">
+    @_messageBar
+</FluentMessageBar>
+
+@if (_Contacts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <FluentToolbar>
+        <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" />
+    </FluentToolbar>
+    <FluentDataGrid Id="ContactGrid" Items="@_Contacts" TGridItem=ContactDTO
+                    GridTemplateColumns="  "
+                    ShowHover="true"
+                    RowSize="DataGridRowSize.Medium"
+                    Pagination="@_pagination">
+        <PropertyColumn Title="Id" Property="@(c => c!.Id)" Align="Align.Center" />
+          <PropertyColumn Title="Email" Property="@(c => c!.Email)" Sortable="true" />
+           <PropertyColumn Title="Company" Property="@(c => c!.Company)" Sortable="true" />
+           <PropertyColumn Title="LastName" Property="@(c => c!.LastName)" Sortable="true" />
+           <PropertyColumn Title="FirstName" Property="@(c => c!.FirstName)" Sortable="true" />
+           <PropertyColumn Title="Phone" Property="@(c => c!.Phone)" Sortable="true" />
+           <TemplateColumn Title="Actions" Align="@Align.End">
+            <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
+            <FluentButton Title="Edit" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(() => OnEditClicked(context))" />
+            <FluentButton Title="Delete" IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))" OnClick="@(() => OnDeleteClicked(context))" />
+        </TemplateColumn>
+    </FluentDataGrid>
+    <FluentPaginator State="@_pagination" />
+}
