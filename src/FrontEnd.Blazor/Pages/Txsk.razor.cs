@@ -14,6 +14,7 @@ namespace FrontEnd.Blazor.Pages
         private bool _messageBarVisible { get; set; }
         private MessageIntent _messageIntent { get; set; }
         private string _titleBar { get; set; } = String.Empty;
+        private bool _showProgress { get; set; } = false;
 
         [Inject]
         public required IGenericService<ContactDTO> _ContactService { get; set; }
@@ -24,12 +25,18 @@ namespace FrontEnd.Blazor.Pages
         [Inject]
         public required IGenericService<TxskTypeDTO> _TxskTypeService { get; set; }
 
+        [Inject]
+        public required ICustomService _CustomService { get; set; }
+
         private TxskDTO? _Txsk { get; set; }
         private IQueryable<TxskDTO>? _Txsks { get; set; }
 
         private List<Option<int?>> _ContactOptions = new();
         private List<Option<int>> _StatusOptions = new();
         private List<Option<int>> _TypeOptions = new();
+
+        DateTime? _DueDateFrom { get; set; } = DateTime.Now;
+        DateTime? _DueDateTo { get; set; } = DateTime.Now.AddDays(1);
 
         private string? _ContactIdSelected
         {
@@ -72,25 +79,34 @@ namespace FrontEnd.Blazor.Pages
         protected override async Task OnInitializedAsync()
         {
             await LoadRelatedData();
-            await LoadData();
+            await LoadSearch();
         }
 
-        private async Task LoadData()
+        private async Task LoadSearch()
         {
             try
             {
                 if (_TxskService == null) ToastService.ShowError("The Service is not working.");
+                _showProgress = true;
 
-                var result = await _TxskService!.GetAllAsync(Constants.TxskApiUrl);
+                var result = await _CustomService!.GetTxskByFilterAsync(Constants.TxskApiUrl, _DueDateFrom, _DueDateTo);
                 if (result != null)
                 {
                     _Txsks = result.AsQueryable();
-                    StateHasChanged();
+                    if (_Txsks.Count() > 100)
+                    {
+                        MessageBar(MessageIntent.Warning, "Search", "Your search returned more than 100 results. Improve your filter.");
+                    }
                 }
             }
             catch (Exception e)
             {
                 MessageBar(MessageIntent.Error, "Error API", e.Message);
+            }
+            finally
+            {
+                _showProgress = false;
+                StateHasChanged();
             }
         }
 
@@ -200,12 +216,17 @@ namespace FrontEnd.Blazor.Pages
             _Txsk = null;
         }
 
+        private async void OnSearchClicked()
+        {
+            await LoadSearch();
+        }
+
         private async void RefreshData(GeneralResponse response)
         {
             if (response.Success)
             {
                 ToastService.ShowSuccess(response.Message);
-                await LoadData();
+                await LoadSearch();
             }
             else
             {

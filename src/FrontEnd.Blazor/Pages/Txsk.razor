@@ -13,83 +13,80 @@
 <FluentMessageBar Title="@_titleBar" Visible="@_messageBarVisible" Intent="@_messageIntent">
     @_messageBar
 </FluentMessageBar>
-
-@if (_Txsks == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <FluentTabs ActiveTabId="@_activeTabId" ActiveTabIdChanged="@(id => _activeTabId = id)">
-        <FluentTab Id="@Constants.TabList">
-            <Header>
-                <FluentIcon Value="@(new Icons.Regular.Size20.ListBar())" />
-                List
-            </Header>
-            <Content>
-                <FluentToolbar>
-                    <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" />
-                </FluentToolbar>
-                <FluentDataGrid Id="TxskGrid" Items="@_Txsks" TGridItem=TxskDTO
-                                GridTemplateColumns="" ShowHover="true" RowSize="DataGridRowSize.Medium"
-                                Pagination="@_pagination">
-                    <PropertyColumn Title="Id" Property="@(c => c!.Id)" Align="Align.Center" />
-                    <PropertyColumn Title="Title" Property="@(c => c!.Title)" Sortable="true" />
-                    <PropertyColumn Title="Contact Name" Property="@(c => c!.ContactName)" Sortable="true" />
-                    <PropertyColumn Title="DueDate" Property="@(c => c!.DueDate)" Sortable="true" Align="Align.Center" Format="dd/MM/yyyy" />
-                    <PropertyColumn Title="Type" Property="@(c => c!.TxskTypeName)" Sortable="true" />
-                    <PropertyColumn Title="Status" Property="@(c => c!.TxskStatusName)" Sortable="true" />
-                    <TemplateColumn Title="Actions" Align="@Align.End">
-                        <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
-                        <FluentButton Title="Edit" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(() => OnEditClicked(context))" />
-                        <FluentButton Title="Delete" IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))" OnClick="@(() => OnDeleteClicked(context))" />
-                    </TemplateColumn>
-                </FluentDataGrid>
-                <FluentPaginator State="@_pagination" />
-            </Content>
-        </FluentTab>
-        <FluentTab Id="@Constants.TabContent">
-            <Header>
-                <FluentIcon Value="@(new Icons.Regular.Size20.AppsListDetail())" />
-                Content @(_Txsk?.Id > 0 ? $" - Id: {_Txsk?.Id}" : "")
-            </Header>
-            <Content>
-                @if (_Txsk != null)
-                {
-                    <EditForm Model="_Txsk" OnValidSubmit="OnSaveDetailClicked">
-                        <DataAnnotationsValidator />
-                        <FluentTextField Label="Title" @bind-Value="_Txsk.Title" />
-                        <FluentSelect Items="@_ContactOptions"
-                                      TOption="Option<int?>"
-                                      OptionText="@(c => c.Text)"
-                                      OptionValue="@(c => c.Value.ToString())"
-                                      @bind-Value="@_ContactIdSelected"
-                                      Label="Contact" />
-                        <FluentDatePicker Label="Due Date" @bind-Value="_Txsk.DueDate" />
-                        <FluentSelect Items="@_TypeOptions"
-                                      TOption="Option<int>"
-                                      OptionText="@(t => t.Text)"
-                                      OptionValue="@(t => t.Value.ToString())"
-                                      @bind-Value="@_TxskTypeIdSelected"
-                                      Label="Type" />
-                        <FluentSelect Items="@_StatusOptions"
-                                      TOption="Option<int>"
-                                      OptionText="@(s => s.Text)"
-                                      OptionValue="@(s => s.Value.ToString())"
-                                      @bind-Value="@_TxskStatusIdSelected"
-                                      Label="Status" />
-                        <br />
-                        <FluentToolbar id="toolbar-footer">
-                            <FluentButton Type="ButtonType.Submit" Title="Save" IconStart="@(new Icons.Regular.Size20.Save())" Appearance="Appearance.Accent">Save</FluentButton>
-                            <FluentButton Title="Cancel" IconStart="@(new Icons.Regular.Size20.ArrowExit())" Appearance="Appearance.Neutral" OnClick="OnCancelClicked">Cancel</FluentButton>
-                        </FluentToolbar>
-                    </EditForm>
-                }
-                else
-                {
-                    <p>No task selected.</p>
-                }
-            </Content>
-        </FluentTab>
-    </FluentTabs>
-}
+<FluentToolbar>
+    <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" />
+    <FluentInputLabel ForId="s1" Orientation="Orientation.Horizontal">DueDate</FluentInputLabel>
+    <FluentDatePicker @bind-Value="@_DueDateFrom"></FluentDatePicker>
+    <FluentDatePicker @bind-Value="@_DueDateTo"></FluentDatePicker>
+    <FluentButton Title="Search" IconStart="@(new Icons.Regular.Size20.Search())" Appearance="Appearance.Accent" OnClick="@OnSearchClicked">Search</FluentButton>
+</FluentToolbar>
+<FluentProgress Visible="@_showProgress"></FluentProgress>
+<FluentTabs ActiveTabId="@_activeTabId" ActiveTabIdChanged="@(id => _activeTabId = id)">
+    <FluentTab Id="@Constants.TabList">
+        <Header>
+            <FluentIcon Value="@(new Icons.Regular.Size20.ListBar())" />
+            List
+        </Header>
+        <Content>
+            <FluentDataGrid Id="TxskGrid" Items="@_Txsks" TGridItem=TxskDTO
+                            GridTemplateColumns="auto 1fr 1fr 1fr 1fr 1fr auto" ShowHover="true" RowSize="DataGridRowSize.Medium"
+                            Pagination="@_pagination">
+                <PropertyColumn Title="Id" Property="@(c => c!.Id)" Align="Align.Center" />
+                <PropertyColumn Title="Title" Property="@(c => c!.Title)" Sortable="true" />
+                <PropertyColumn Title="Contact Name" Property="@(c => c!.ContactName)" Sortable="true" />
+                <PropertyColumn Title="DueDate" Property="@(c => c!.DueDate)" Sortable="true" Align="Align.Center" Format="dd/MM/yyyy" />
+                <PropertyColumn Title="Type" Property="@(c => c!.TxskTypeName)" Sortable="true" />
+                <PropertyColumn Title="Status" Property="@(c => c!.TxskStatusName)" Sortable="true" />
+                <TemplateColumn Title="Actions" Align="@Align.End">
+                    <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
+                    <FluentButton Title="Edit" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(() => OnEditClicked(context))" />
+                    <FluentButton Title="Delete" IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))" OnClick="@(() => OnDeleteClicked(context))" />
+                </TemplateColumn>
+            </FluentDataGrid>
+            <FluentPaginator State="@_pagination" />
+        </Content>
+    </FluentTab>
+    <FluentTab Id="@Constants.TabContent">
+        <Header>
+            <FluentIcon Value="@(new Icons.Regular.Size20.AppsListDetail())" />
+            Content @(_Txsk?.Id > 0 ? $" - Id: {_Txsk?.Id}" : "")
+        </Header>
+        <Content>
+            @if (_Txsk != null)
+            {
+                <EditForm Model="_Txsk" OnValidSubmit="OnSaveDetailClicked">
+                    <DataAnnotationsValidator />
+                    <FluentTextField Label="Title" @bind-Value="_Txsk.Title" Maxlength=256 Size=256 />
+                    <FluentSelect Items="@_ContactOptions"
+                                  TOption="Option<int?>"
+                                  OptionText="@(c => c.Text)"
+                                  OptionValue="@(c => c.Value.ToString())"
+                                  @bind-Value="@_ContactIdSelected"
+                                  Label="Contact" />
+                    <FluentDatePicker Label="Due Date" @bind-Value="_Txsk.DueDate" />
+                    <FluentSelect Items="@_TypeOptions"
+                                  TOption="Option<int>"
+                                  OptionText="@(t => t.Text)"
+                                  OptionValue="@(t => t.Value.ToString())"
+                                  @bind-Value="@_TxskTypeIdSelected"
+                                  Label="Type" />
+                    <FluentSelect Items="@_StatusOptions"
+                                  TOption="Option<int>"
+                                  OptionText="@(s => s.Text)"
+                                  OptionValue="@(s => s.Value.ToString())"
+                                  @bind-Value="@_TxskStatusIdSelected"
+                                  Label="Status" />
+                    <br />
+                    <FluentToolbar id="toolbar-footer">
+                        <FluentButton Type="ButtonType.Submit" Title="Save" IconStart="@(new Icons.Regular.Size20.Save())" Appearance="Appearance.Accent">Save</FluentButton>
+                        <FluentButton Title="Cancel" IconStart="@(new Icons.Regular.Size20.ArrowExit())" Appearance="Appearance.Neutral" OnClick="OnCancelClicked">Cancel</FluentButton>
+                    </FluentToolbar>
+                </EditForm>
+            }
+            else
+            {
+                <p>No task selected.</p>
+            }
+        </Content>
+    </FluentTab>
+</FluentTabs>

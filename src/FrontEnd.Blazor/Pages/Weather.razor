@@ -12,16 +12,15 @@
 <FluentMessageBar Title="Descriptive title" Visible="@MessageBarVisible">
     @MessageBar
 </FluentMessageBar>
-
+<FluentToolbar>
+    <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" Disabled=@(Weathers == null) />
+</FluentToolbar>
 @if (Weathers == null)
 {
-    <p><em>Loading...</em></p>
+    <FluentProgress></FluentProgress>
 }
 else
 {
-    <FluentToolbar>
-        <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" />
-    </FluentToolbar>
     <FluentDataGrid Id="weathergrid" Items="@Weathers" TGridItem=WeatherForecastDTO
                     GridTemplateColumns="1fr 1fr 1fr 1fr 1fr 2fr"
                     ShowHover="true"

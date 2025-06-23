@@ -13,17 +13,18 @@
 <FluentMessageBar Title="@_titleBar" Visible="@_messageBarVisible" Intent="@_messageIntent">
     @_messageBar
 </FluentMessageBar>
-
+<FluentToolbar>
+    <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" Disabled=@(_Contacts == null) />
+    <FluentTextField @bind-Value="@_filterEmail" Placeholder="Email" TextFieldType="TextFieldType.Search" AutoComplete="off"></FluentTextField>
+    <FluentButton Title="Filter" IconStart="@(new Icons.Regular.Size20.Filter())" Appearance="Appearance.Accent" OnClick="@OnFilterClicked">Filter</FluentButton>
+</FluentToolbar>
 @if (_Contacts == null)
 {
-    <p><em>Loading...</em></p>
+    <FluentProgress></FluentProgress>
 }
 else
 {
-    <FluentToolbar>
-        <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" />
-    </FluentToolbar>
-    <FluentDataGrid Id="ContactGrid" Items="@_Contacts" TGridItem=ContactDTO
+    <FluentDataGrid Id="ContactGrid" Items="@_Filtereds" TGridItem=ContactDTO
                     GridTemplateColumns="  "
                     ShowHover="true"
                     RowSize="DataGridRowSize.Medium"

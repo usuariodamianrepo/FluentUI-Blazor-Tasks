@@ -20,6 +20,8 @@ namespace FrontEnd.Blazor.Pages
 
         private ContactDTO? _Contact { get; set; }
         private IQueryable<ContactDTO>? _Contacts { get; set; }
+        private IQueryable<ContactDTO>? _Filtereds { get; set; }
+        private string _filterEmail { get; set; } = string.Empty;
 
         protected override async Task OnInitializedAsync()
         {
@@ -36,6 +38,7 @@ namespace FrontEnd.Blazor.Pages
                 if (result != null)
                 {
                     _Contacts = result.AsQueryable();
+                    _Filtereds = result.AsQueryable();
                     StateHasChanged();
                 }
             }
@@ -123,6 +126,14 @@ namespace FrontEnd.Blazor.Pages
                     _Contact = (ContactDTO)result.Data;
                     RefreshData(await _ContactService.UpdateAsync(Constants.ContactApiUrl, _Contact.Id, _Contact));
                 }
+            }
+        }
+
+        private void OnFilterClicked()
+        {
+            if (_Contacts != null)
+            {
+                _Filtereds = _Contacts!.Where(c => c.Email.Contains(_filterEmail) || _filterEmail.Trim() == string.Empty);
             }
         }
 

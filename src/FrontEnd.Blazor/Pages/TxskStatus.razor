@@ -13,15 +13,16 @@
     @_messageBar
 </FluentMessageBar>
 
+<FluentToolbar>
+    <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" 
+        OnClick="@OnAddClicked" Disabled=@(_TxskStatuses == null) />
+</FluentToolbar>
 @if (_TxskStatuses == null)
 {
-    <p><em>Loading...</em></p>
+    <FluentProgress></FluentProgress>
 }
 else
 {
-    <FluentToolbar>
-        <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" />
-    </FluentToolbar>
     <FluentDataGrid Id="TxskStatusGrid" Items="@_TxskStatuses" TGridItem=TxskStatusDTO
                     GridTemplateColumns="auto 1fr auto"
                     ShowHover="true"

@@ -32,6 +32,38 @@ namespace BackEnd.API.Controllers
             return Ok(_mapper.Map<IEnumerable<Txsk>, IEnumerable<TxskDTO>>(allItems));
         }
 
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<TxskDTO>>> GetByFilterTxsks(
+            [FromQuery] DateTime? dueDateFrom,
+            [FromQuery] DateTime? dueDateTo)
+        {
+            if (!dueDateFrom.HasValue || !dueDateTo.HasValue)
+            {
+                return BadRequest(new GeneralResponse(false, $"Due Date From or Due Date To can not be null"));
+            }
+
+            if (dueDateFrom > dueDateTo)
+            {
+                return BadRequest(new GeneralResponse(false, $"Due Date From {dueDateFrom} can not be greated than Due Date To {dueDateTo}"));
+            }
+
+            var query = _context.Txsks
+                .Include("Contact")
+                .Include("TxskStatus")
+                .Include("TxskType")
+                .AsQueryable();
+
+            if (dueDateFrom.HasValue)
+                query = query.Where(t => t.DueDate >= dueDateFrom.Value);
+
+            if (dueDateTo.HasValue)
+                query = query.Where(t => t.DueDate <= dueDateTo.Value);
+
+            var filteredItems = await query.Take(101).ToListAsync();
+
+            return Ok(_mapper.Map<IEnumerable<Txsk>, IEnumerable<TxskDTO>>(filteredItems));
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<TxskDTO>> GetTxsk(int id)
         {
