@@ -8,16 +8,18 @@ namespace FrontEnd.Blazor.Pages
 {
     public partial class Txsk
     {
-        private string _activeTabId = Constants.TabList;
-        private PaginationState _pagination = new PaginationState() { ItemsPerPage = 10 };
-        private string _messageBar { get; set; } = String.Empty;
-        private bool _messageBarVisible { get; set; }
-        private MessageIntent _messageIntent { get; set; }
-        private string _titleBar { get; set; } = String.Empty;
-        private bool _showProgress { get; set; } = false;
+        string _activeTabId = Constants.TabList;
+        string? _messageBar { get; set; }
+        bool _messageBarVisible { get; set; }
+        MessageIntent _messageIntent { get; set; }
+        bool _showProgress { get; set; } = false;
+        string? _titleBar { get; set; }
+        PaginationState _pagination = new PaginationState() { ItemsPerPage = 10 };
 
         [Inject]
         public required IGenericService<ContactDTO> _ContactService { get; set; }
+        [Inject]
+        public required ICustomService _CustomService { get; set; }
         [Inject]
         public required IGenericService<TxskDTO> _TxskService { get; set; }
         [Inject]
@@ -25,34 +27,19 @@ namespace FrontEnd.Blazor.Pages
         [Inject]
         public required IGenericService<TxskTypeDTO> _TxskTypeService { get; set; }
 
-        [Inject]
-        public required ICustomService _CustomService { get; set; }
+        DateTime? _DueDateFrom { get; set; } = DateTime.Now.AddMonths(-1);
+        DateTime? _DueDateTo { get; set; } = DateTime.Now.AddMonths(1);
 
-        private TxskDTO? _Txsk { get; set; }
-        private IQueryable<TxskDTO>? _Txsks { get; set; }
+        TxskDTO? _Txsk { get; set; }
+        IQueryable<TxskDTO>? _Txsks { get; set; }
 
-        private List<Option<int?>> _ContactOptions = new();
-        private List<Option<int>> _StatusOptions = new();
-        private List<Option<int>> _TypeOptions = new();
+        IEnumerable<TxskStatusDTO>? _TxskStatuses { get; set; }
+        IEnumerable<TxskTypeDTO>? _TxskTypes { get; set; }
+        
+        List<Option<int>> _StatusOptions = new();
+        List<Option<int>> _TypeOptions = new();
+        ContactDTO? _ContactSelected = null;
 
-        DateTime? _DueDateFrom { get; set; } = DateTime.Now;
-        DateTime? _DueDateTo { get; set; } = DateTime.Now.AddDays(1);
-
-        private string? _ContactIdSelected
-        {
-            get => _Txsk?.ContactId.ToString();
-            set
-            {
-                if (int.TryParse(value, out int id))
-                {
-                    _Txsk!.ContactId = id;
-                }
-                else if (value == string.Empty)
-                {
-                    _Txsk!.ContactId = null;
-                }
-            }
-        }
         private string? _TxskStatusIdSelected
         {
             get => _Txsk?.TxskStatusId.ToString();
@@ -64,6 +51,7 @@ namespace FrontEnd.Blazor.Pages
                 }
             }
         }
+
         private string? _TxskTypeIdSelected
         {
             get => _Txsk?.TxskTypeId.ToString();
@@ -80,6 +68,35 @@ namespace FrontEnd.Blazor.Pages
         {
             await LoadRelatedData();
             await LoadSearch();
+        }
+
+        private async Task LoadRelatedData()
+        {
+            try
+            {
+                if (_ContactService == null) ToastService.ShowError("The Contact Service is not working.");
+                if (_TxskTypeService == null) ToastService.ShowError("The TxskType Service is not working.");
+                if (_TxskStatusService == null) ToastService.ShowError("The TxskStatus Service is not working.");
+
+                _showProgress = true;
+                _TxskTypes = await _TxskTypeService!.GetAllAsync(Constants.TxskTypeApiUrl);
+                _TxskStatuses = await _TxskStatusService!.GetAllAsync(Constants.TxskStatusApiUrl);
+
+                if (_TxskTypes != null && _TxskStatuses != null)
+                {
+                    _TypeOptions = _TxskTypes.Select(t => new Option<int> { Value = t.Id, Text = t.Name ?? string.Empty }).ToList();
+                    _StatusOptions = _TxskStatuses.Select(s => new Option<int> { Value = s.Id, Text = s.Name ?? string.Empty }).ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBar(MessageIntent.Error, "Error API", e.Message);
+            }
+            finally
+            {
+                _showProgress = false;
+                StateHasChanged();
+            }
         }
 
         private async Task LoadSearch()
@@ -110,33 +127,6 @@ namespace FrontEnd.Blazor.Pages
             }
         }
 
-        private async Task LoadRelatedData()
-        {
-            try
-            {
-                if (_ContactService == null) ToastService.ShowError("The Contact Service is not working.");
-                if (_TxskTypeService == null) ToastService.ShowError("The TxskType Service is not working.");
-                if (_TxskStatusService == null) ToastService.ShowError("The TxskStatus Service is not working.");
-
-                var contacts = await _ContactService!.GetAllAsync(Constants.ContactApiUrl);
-                var txskTypes = await _TxskTypeService!.GetAllAsync(Constants.TxskTypeApiUrl);
-                var txskStatus = await _TxskStatusService!.GetAllAsync(Constants.TxskStatusApiUrl);
-
-                if (contacts != null && txskTypes != null && txskStatus != null)
-                {
-                    _ContactOptions = contacts.Select(c => new Option<int?> { Value = c.Id, Text = c.Name ?? string.Empty }).ToList();
-                    _ContactOptions.Insert(0, new Option<int?> { Value = null, Text = Constants.OptionEmpty });
-                    _TypeOptions = txskTypes.Select(t => new Option<int> { Value = t.Id, Text = t.Name ?? string.Empty }).ToList();
-                    _StatusOptions = txskStatus.Select(s => new Option<int> { Value = s.Id, Text = s.Name ?? string.Empty }).ToList();
-                    StateHasChanged();
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBar(MessageIntent.Error, "Error API", e.Message);
-            }
-        }
-
         private void MessageBar(MessageIntent intent, string title, string message)
         {
             _messageIntent = intent;
@@ -148,14 +138,38 @@ namespace FrontEnd.Blazor.Pages
 
         private void OnAddClicked()
         {
+            _Txsk = new()
+            {
+                Id = 0,
+                TxskTypeId = _TxskTypes?.FirstOrDefault()?.Id ?? 0,
+                TxskStatusId = _TxskStatuses?.FirstOrDefault()?.Id ?? 0,
+            };
+            _ContactSelected = null;
             _activeTabId = Constants.TabContent;
-            TxskClean();
         }
 
         private void OnCancelClicked()
         {
             _activeTabId = Constants.TabList;
-            TxskClean();
+            _Txsk = null;
+        }
+
+        private void OnContactChanged(string text)
+        {
+            _Txsk!.ContactId = _ContactSelected?.Id ?? null;
+        }
+
+        private async Task OnContactSearchAsync(OptionsSearchEventArgs<ContactDTO> e)
+        {
+            if (e.Text.Length < 3)
+            {
+                _ContactSelected = null;
+                return;
+            }
+
+            _showProgress = true;
+            e.Items = await _CustomService.GetContactsByNameAsync(Constants.ContactApiUrl, e.Text);
+            _showProgress = false;
         }
 
         private async void OnDeleteClicked(TxskDTO itemDTO)
@@ -189,20 +203,29 @@ namespace FrontEnd.Blazor.Pages
 
         private async void OnEditClicked(TxskDTO itemDTO)
         {
-            if (_TxskService == null) return;
+            if (_TxskService == null)
+            {
+                ToastService.ShowError("The Tasks Service is not working.");
+                return;
+            }
+
             _Txsk = await _TxskService.GetByIdAsync(Constants.TxskApiUrl, itemDTO.Id);
 
             if (_Txsk != null)
             {
                 _activeTabId = Constants.TabContent;
-                _ContactIdSelected = _Txsk.ContactId.ToString();
+                if (_Txsk.ContactId is null)
+                    _ContactSelected = null;
+                else
+                    _ContactSelected = new ContactDTO { Id = _Txsk.ContactId ?? 0, FirstName = _Txsk.ContactName };
+
                 _TxskTypeIdSelected = _Txsk.TxskTypeId.ToString();
                 _TxskStatusIdSelected = _Txsk.TxskStatusId.ToString();
                 StateHasChanged();
             }
         }
 
-        private async Task OnSaveDetailClicked()
+        private async Task OnSaveContentClicked()
         {
             if (_Txsk!.Id == 0)
             {
@@ -232,11 +255,6 @@ namespace FrontEnd.Blazor.Pages
             {
                 ToastService.ShowError(response.Message);
             }
-        }
-
-        private void TxskClean()
-        {
-            _Txsk = null;
         }
     }
 }

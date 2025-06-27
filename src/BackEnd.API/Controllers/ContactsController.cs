@@ -19,11 +19,19 @@ namespace BackEnd.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
         {
-            var allItems = await _context.Contacts.ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<Contact>, IEnumerable<ContactDTO>>(allItems));
+            var contact = await _context.Contacts.FindAsync(id);
+            if (contact == null)
+            {
+                return NotFound(new GeneralResponse(false, $"Not Found Contact Id: {id} to delete."));
+            }
+
+            _context.Contacts.Remove(contact);
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"Contact Id: {id} was deleted!"));
         }
 
         [HttpGet("{id}")]
@@ -37,6 +45,37 @@ namespace BackEnd.API.Controllers
             }
 
             return Ok(_mapper.Map<Contact, ContactDTO>(oneItem));
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
+        {
+            var allItems = await _context.Contacts.ToListAsync();
+            return Ok(_mapper.Map<IEnumerable<Contact>, IEnumerable<ContactDTO>>(allItems));
+        }
+
+        [HttpGet("byName")]
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContactsByFirstName([FromQuery] string? name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest(new GeneralResponse(false, $"The parameter name is null or empty."));
+            }
+
+            var allItems = await _context.Contacts.Where(c => c.FirstName.StartsWith(name) || c.LastName.StartsWith(name)) 
+                                  .OrderBy(i => i.FirstName)
+                                  .ToListAsync();
+
+            return Ok(_mapper.Map<IEnumerable<Contact>, IEnumerable<ContactDTO>>(allItems));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<GeneralResponse>> PostContact(ContactDTO toAdd)
+        {
+            var newItem = _context.Contacts.Add(_mapper.Map<ContactDTO, Contact>(toAdd));
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"Contact Id: {newItem.Entity.Id} was created!"));
         }
 
         [HttpPut("{id}")]
@@ -67,31 +106,7 @@ namespace BackEnd.API.Controllers
 
             return Ok(new GeneralResponse(true, $"Contact Id: {id} was updated!"));
         }
-
-        [HttpPost]
-        public async Task<ActionResult<GeneralResponse>> PostContact(ContactDTO toAdd)
-        {
-            var newItem = _context.Contacts.Add(_mapper.Map<ContactDTO, Contact>(toAdd));
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"Contact Id: {newItem.Entity.Id} was created!"));
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
-        {
-            var contact = await _context.Contacts.FindAsync(id);
-            if (contact == null)
-            {
-                return NotFound(new GeneralResponse(false, $"Not Found Contact Id: {id} to delete."));
-            }
-
-            _context.Contacts.Remove(contact);
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"Contact Id: {id} was deleted!"));
-        }
-
+        
         private bool ContactExists(int id)
         {
             return _context.Contacts.Any(e => e.Id == id);

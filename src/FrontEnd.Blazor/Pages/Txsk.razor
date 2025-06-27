@@ -54,27 +54,31 @@
         <Content>
             @if (_Txsk != null)
             {
-                <EditForm Model="_Txsk" OnValidSubmit="OnSaveDetailClicked">
+                <EditForm Model="_Txsk" OnValidSubmit="OnSaveContentClicked">
                     <DataAnnotationsValidator />
-                    <FluentTextField Label="Title" @bind-Value="_Txsk.Title" Maxlength=256 Size=256 />
-                    <FluentSelect Items="@_ContactOptions"
-                                  TOption="Option<int?>"
-                                  OptionText="@(c => c.Text)"
-                                  OptionValue="@(c => c.Value.ToString())"
-                                  @bind-Value="@_ContactIdSelected"
-                                  Label="Contact" />
+                    <FluentTextField Label="Title" @bind-Value=_Txsk.Title Maxlength=256 Size=256 Autofocus="true" />
+                    <FluentAutocomplete TOption="ContactDTO"
+                                        AutoComplete="off"
+                                        Label="Contact"
+                                        Width="250px"
+                                        Placeholder="Contact"
+                                        OnOptionsSearch="@OnContactSearchAsync"
+                                        ValueChanged="@OnContactChanged"
+                                        Multiple=false
+                                        OptionText="@(c => c.Name)"
+                                        @bind-SelectedOption=_ContactSelected />
                     <FluentDatePicker Label="Due Date" @bind-Value="_Txsk.DueDate" />
                     <FluentSelect Items="@_TypeOptions"
                                   TOption="Option<int>"
                                   OptionText="@(t => t.Text)"
                                   OptionValue="@(t => t.Value.ToString())"
-                                  @bind-Value="@_TxskTypeIdSelected"
+                                  @bind-Value=_TxskTypeIdSelected
                                   Label="Type" />
                     <FluentSelect Items="@_StatusOptions"
                                   TOption="Option<int>"
                                   OptionText="@(s => s.Text)"
                                   OptionValue="@(s => s.Value.ToString())"
-                                  @bind-Value="@_TxskStatusIdSelected"
+                                  @bind-Value=_TxskStatusIdSelected
                                   Label="Status" />
                     <br />
                     <FluentToolbar id="toolbar-footer">

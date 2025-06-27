@@ -12,6 +12,12 @@ namespace FrontEnd.Blazor.Services
             _httpClient = getHttpClient;
         }
 
+        public async Task<IEnumerable<ContactDTO>> GetContactsByNameAsync(string url, string? name)
+        {
+            var response = await _httpClient.GetFromJsonAsync<IEnumerable<ContactDTO>>($"{url}/byName?name={name}");
+            return response ?? new List<ContactDTO>();
+        }
+
         public async Task<IEnumerable<TxskDTO>> GetTxskByFilterAsync(string url, DateTime? dueDateFrom, DateTime? dueDateTo)
         {
             var query = new List<string>();

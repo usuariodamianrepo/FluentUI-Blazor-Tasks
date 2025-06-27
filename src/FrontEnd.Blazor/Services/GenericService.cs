@@ -12,6 +12,22 @@ namespace FrontEnd.Blazor.Services
             _httpClient = getHttpClient;
         }
 
+        public async Task<GeneralResponse> CreateAsync(string url, T toCreate)
+        {
+            var response = await _httpClient.PostAsJsonAsync($"{url}", toCreate);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<GeneralResponse>();
+            return result!;
+        }
+
+        public async Task<GeneralResponse> DeleteAsync(string url, int id)
+        {
+            var response = await _httpClient.DeleteAsync($"{url}/{id}");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<GeneralResponse>();
+            return result!;
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync(string url)
         {
             var response = await _httpClient.GetFromJsonAsync<IEnumerable<T>>(url);
@@ -24,25 +40,9 @@ namespace FrontEnd.Blazor.Services
             return response!;
         }
 
-        public async Task<GeneralResponse> CreateAsync(string url, T toCreate)
-        {
-            var response = await _httpClient.PostAsJsonAsync($"{url}", toCreate);
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadFromJsonAsync<GeneralResponse>();
-            return result!;
-        }
-
         public async Task<GeneralResponse> UpdateAsync(string url, int id, T toUpdate)
         {
             var response = await _httpClient.PutAsJsonAsync($"{url}/{id}", toUpdate);
-            response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadFromJsonAsync<GeneralResponse>();
-            return result!;
-        }
-
-        public async Task<GeneralResponse> DeleteAsync(string url, int id)
-        {
-            var response = await _httpClient.DeleteAsync($"{url}/{id}");
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<GeneralResponse>();
             return result!;
