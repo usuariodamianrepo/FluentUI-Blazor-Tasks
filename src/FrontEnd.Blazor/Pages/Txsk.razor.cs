@@ -30,7 +30,9 @@ namespace FrontEnd.Blazor.Pages
         DateTime? _DueDateFrom { get; set; } = DateTime.Now.AddMonths(-1);
         DateTime? _DueDateTo { get; set; } = DateTime.Now.AddMonths(1);
 
+        [SupplyParameterFromForm]
         TxskDTO? _Txsk { get; set; }
+
         IQueryable<TxskDTO>? _Txsks { get; set; }
 
         IEnumerable<TxskStatusDTO>? _TxskStatuses { get; set; }
@@ -143,7 +145,8 @@ namespace FrontEnd.Blazor.Pages
                 Id = 0,
                 TxskTypeId = _TxskTypes?.FirstOrDefault()?.Id ?? 0,
                 TxskStatusId = _TxskStatuses?.FirstOrDefault()?.Id ?? 0,
-            };
+            }
+            ;
             _ContactSelected = null;
             _activeTabId = Constants.TabContent;
         }

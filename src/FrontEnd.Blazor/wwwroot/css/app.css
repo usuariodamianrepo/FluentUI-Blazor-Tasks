@@ -124,6 +124,14 @@ code {
     color: #c02d76;
 }
 
+.login {
+    background: #b0d2f5;
+    padding: 20px;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+}
+
 @media (max-width: 600px) {
     .header-gutters {
         margin: 0.5rem 3rem 0.5rem 1.5rem !important;

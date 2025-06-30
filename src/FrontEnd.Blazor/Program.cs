@@ -10,6 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7013") });
 builder.Services.AddFluentUIComponents();
+builder.Services.AddScoped(typeof(IAuthService), typeof(AuthService));
 builder.Services.AddScoped(typeof(ICustomService), typeof(CustomService));
 builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
 
