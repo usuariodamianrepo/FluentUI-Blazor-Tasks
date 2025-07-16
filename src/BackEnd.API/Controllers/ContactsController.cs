@@ -7,8 +7,8 @@ using Shared;
 
 namespace BackEnd.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     [Authorize]
     public class ContactsController : ControllerBase
     {

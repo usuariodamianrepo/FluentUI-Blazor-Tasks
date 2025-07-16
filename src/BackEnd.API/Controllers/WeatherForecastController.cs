@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared;
 
@@ -5,6 +6,7 @@ namespace BackEnd.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [AllowAnonymous]
     public class WeatherForecastController : ControllerBase
     {
         private readonly int milliseconds = 100;

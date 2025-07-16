@@ -14,8 +14,8 @@ using System.Text;
 
 namespace BackEnd.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     [AllowAnonymous]
     public class UserAccountsController : ControllerBase
     {

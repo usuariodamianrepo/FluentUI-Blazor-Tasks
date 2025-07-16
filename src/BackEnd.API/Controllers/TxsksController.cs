@@ -1,14 +1,16 @@
 
 using AutoMapper;
 using BackEnd.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shared;
 
 namespace BackEnd.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
     public class TxsksController : ControllerBase
     {
         private readonly AppDbContext _context;
