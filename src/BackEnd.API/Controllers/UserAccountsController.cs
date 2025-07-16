@@ -144,38 +144,6 @@ namespace BackEnd.API.Controllers
             return new LoginResponse(true, "Token refreshed sucessful", jwtToken, refreshToken);
         }
 
-        /*
-        [HttpGet("users")]
-        public async Task<IActionResult> GetUsersAsync()
-        {
-           var users = await accountInterface.GetUsers();
-           if (users == null) return NotFound();
-           return Ok(users);
-        }
-
-        //[HttpPut("update-user")]
-        //public async Task<IActionResult> UpdateUser([FromBody] ManageUser manageUser)
-        //{
-        //    var result = await accountInterface.UpdateUser(manageUser);
-        //    return Ok(result);
-        //}
-
-        [HttpGet("roles")]
-        public async Task<IActionResult> GetRoles()
-        {
-           var users = await accountInterface.GetRoles();
-           if (users == null) return NotFound();
-           return Ok(users);
-        }
-
-        [HttpDelete("delete-user/{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-           var result = await accountInterface.DeleteUser(id);
-           return Ok(result);
-        }
-        */
-
         private string GenerateToken(AppUser user, string role)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.Value.Key!));
@@ -207,16 +175,5 @@ namespace BackEnd.API.Controllers
         private async Task<AppRole> FindRoleName(int roleId) =>
             await _context.AppRoles.FirstOrDefaultAsync(x => x.Id == roleId);
 
-        private async Task<List<AppRole>> SystemRoles() => await _context.AppRoles
-            .AsNoTracking()
-            .ToListAsync();
-
-        private async Task<List<AppUserRole>> UserRoles() => await _context.AppUserRoles
-            .AsNoTracking()
-            .ToListAsync();
-
-        private async Task<List<AppUser>> GetApplicationUsers() => await _context.AppUsers
-            .AsNoTracking()
-            .ToListAsync();
     }
 }
