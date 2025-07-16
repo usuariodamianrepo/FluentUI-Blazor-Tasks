@@ -1,20 +1,22 @@
-﻿using Shared;
+﻿using FrontEnd.Blazor.Helpers;
+using Shared;
 using System.Net.Http.Json;
 
 namespace FrontEnd.Blazor.Services
 {
     public class CustomService: ICustomService
     {
-        private readonly HttpClient _httpClient;
+        private readonly GetHttpClient _GetHttpClient;
 
-        public CustomService(HttpClient getHttpClient)
+        public CustomService(GetHttpClient getHttpClient)
         {
-            _httpClient = getHttpClient;
+            _GetHttpClient = getHttpClient;
         }
 
         public async Task<IEnumerable<ContactDTO>> GetContactsByNameAsync(string url, string? name)
         {
-            var response = await _httpClient.GetFromJsonAsync<IEnumerable<ContactDTO>>($"{url}/byName?name={name}");
+            var httpClient = await _GetHttpClient.GetPrivateHttpClient();
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<ContactDTO>>($"{url}/byName?name={name}");
             return response ?? new List<ContactDTO>();
         }
 
@@ -27,7 +29,8 @@ namespace FrontEnd.Blazor.Services
                 query.Add($"dueDateTo={dueDateTo.Value.ToString("o")}");
             var queryString = query.Count > 0 ? "?" + string.Join("&", query) : string.Empty;
 
-            var response = await _httpClient.GetFromJsonAsync<IEnumerable<TxskDTO>>($"{url}/filter{queryString}");
+            var httpClient = await _GetHttpClient.GetPrivateHttpClient();
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<TxskDTO>>($"{url}/filter{queryString}");
             return response ?? new List<TxskDTO>();
         }
     }

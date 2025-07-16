@@ -4,22 +4,20 @@ namespace BackEnd.API.Data;
 
 public partial class AppDbContext : DbContext
 {
-    public AppDbContext()
-    {
-    }
-
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
     }
 
-    public virtual DbSet<Contact> Contacts { get; set; }
+    public DbSet<AppRole> AppRoles { get; set; }
+    public DbSet<AppUser> AppUsers { get; set; }
+    public DbSet<AppUserRole> AppUserRoles { get; set; }
+    public DbSet<RefreshTokenInfo> RefreshTokenInfos { get; set; }
 
-    public virtual DbSet<Txsk> Txsks { get; set; }
-
-    public virtual DbSet<TxskStatus> TxskStatuses { get; set; }
-
-    public virtual DbSet<TxskType> TxskTypes { get; set; }
+    public DbSet<Contact> Contacts { get; set; }
+    public DbSet<Txsk> Txsks { get; set; }
+    public DbSet<TxskStatus> TxskStatuses { get; set; }
+    public DbSet<TxskType> TxskTypes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("name=ConnectionStrings:DevConnection");

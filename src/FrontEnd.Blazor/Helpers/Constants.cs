@@ -2,6 +2,7 @@
 {
     public static class Constants
     {
+        public const string AuthUrl = "api/UserAccounts";
         public const string ContactApiUrl = "api/Contacts";
         public const string WeatherForecastApiUrl = "api/WeatherForecast";
         public const string OpportunityStatusApiUrl = "api/OpportunityStatuses";

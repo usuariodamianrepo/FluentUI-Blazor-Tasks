@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
 namespace BackEnd.API.Data;
 
 public partial class Contact

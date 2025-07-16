@@ -1,5 +1,6 @@
 using AutoMapper;
 using BackEnd.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shared;
@@ -8,6 +9,7 @@ namespace BackEnd.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ContactsController : ControllerBase
     {
         private readonly AppDbContext _context;
