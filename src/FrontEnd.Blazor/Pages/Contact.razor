@@ -1,4 +1,3 @@
-
 @page "/Contact"
 @using Shared;
 @using Microsoft.FluentUI.AspNetCore.Components;
@@ -13,28 +12,39 @@
     @_messageBar
 </FluentMessageBar>
 <FluentToolbar>
+    <FluentButton Title="Dismiss all filters" IconStart="@(new Icons.Regular.Size20.FilterDismiss())" Appearance="Appearance.Neutral"
+                  OnClick="@OnFilterDismissClicked" Disabled=@_DisabledFilterDismiss />
     <FluentButton Title="Add" IconStart="@(new Icons.Regular.Size20.Add())" Appearance="Appearance.Neutral" OnClick="@OnAddClicked" Disabled=@(_Contacts == null) />
-    <FluentTextField @bind-Value="@_filterEmail" Placeholder="Email" TextFieldType="TextFieldType.Search" AutoComplete="off"></FluentTextField>
-    <FluentButton Title="Filter" IconStart="@(new Icons.Regular.Size20.Filter())" Appearance="Appearance.Accent" OnClick="@OnFilterClicked">Filter</FluentButton>
 </FluentToolbar>
-@if (_Contacts == null)
+@if (_FilteredItems == null)
 {
     <FluentProgress></FluentProgress>
 }
 else
 {
-    <FluentDataGrid Id="ContactGrid" Items="@_Filtereds" TGridItem=ContactDTO
-                    GridTemplateColumns="  "
+    <FluentDataGrid @ref="grid" Id="ContactGrid" Items="@_FilteredItems" TGridItem=ContactDTO
+                    GridTemplateColumns="auto 1fr 1fr 1fr 1fr auto"
                     ShowHover="true"
                     RowSize="DataGridRowSize.Medium"
                     Pagination="@_pagination">
         <PropertyColumn Title="Id" Property="@(c => c!.Id)" Align="Align.Center" />
-          <PropertyColumn Title="Email" Property="@(c => c!.Email)" Sortable="true" />
-           <PropertyColumn Title="Company" Property="@(c => c!.Company)" Sortable="true" />
-           <PropertyColumn Title="LastName" Property="@(c => c!.LastName)" Sortable="true" />
-           <PropertyColumn Title="FirstName" Property="@(c => c!.FirstName)" Sortable="true" />
-           <PropertyColumn Title="Phone" Property="@(c => c!.Phone)" Sortable="true" />
-           <TemplateColumn Title="Actions" Align="@Align.End">
+        <PropertyColumn Title="Email" Property="@(c => c!.Email)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(_EmailFilter)" Tooltip="true">
+            <ColumnOptions>
+                <div class="search-box">
+                    <FluentSearch Autofocus=true @bind-Value=_EmailFilter @oninput="HandleEmailFilter" @onkeydown="HandleCloseFilterAsync" @bind-Value:after="HandleClear" Placeholder="Filter Email" Style="width: 100%;" Label="Filter" />
+                </div>
+            </ColumnOptions>
+        </PropertyColumn>
+        <PropertyColumn Title="Company" Property="@(c => c!.Company)" Sortable="true" />
+        <PropertyColumn Title="Name" Property="@(c => c!.Name)" Sortable="true" Filtered="!string.IsNullOrWhiteSpace(_NameFilter)" Tooltip="true">
+            <ColumnOptions>
+                <div class="search-box">
+                    <FluentSearch Autofocus=true @bind-Value=_NameFilter @oninput="HandleNameFilter" @onkeydown="HandleCloseFilterAsync" @bind-Value:after="HandleClear" Placeholder="Filter Name" Style="width: 100%;" Label="Filter" />
+                </div>
+            </ColumnOptions>
+        </PropertyColumn>
+        <PropertyColumn Title="Phone" Property="@(c => c!.Phone)" Sortable="true" />
+        <TemplateColumn Title="Actions" Align="@Align.End">
             <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
             <FluentButton Title="Edit" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(() => OnEditClicked(context))" />
             <FluentButton Title="Delete" IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))" OnClick="@(() => OnDeleteClicked(context))" />
