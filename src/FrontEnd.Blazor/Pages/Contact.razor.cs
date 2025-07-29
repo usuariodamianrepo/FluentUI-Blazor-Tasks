@@ -2,6 +2,7 @@
 using FrontEnd.Blazor.Helpers;
 using FrontEnd.Blazor.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Shared;
 
@@ -9,23 +10,87 @@ namespace FrontEnd.Blazor.Pages
 {
     public partial class Contact
     {
-        private string _messageBar { get; set; } = String.Empty;
-        private bool _messageBarVisible { get; set; }
-        private MessageIntent _messageIntent { get; set; }
-        private string _titleBar { get; set; } = String.Empty;
-        private PaginationState _pagination = new PaginationState() { ItemsPerPage = 10 };
+        PaginationState _pagination = new PaginationState() { ItemsPerPage = 10 };
+        FluentDataGrid<ContactDTO>? grid;
 
         [Inject]
         public required IGenericService<ContactDTO> _ContactService { get; set; }
+        ContactDTO? _Contact { get; set; }
+        IQueryable<ContactDTO>? _Contacts { get; set; }
 
-        private ContactDTO? _Contact { get; set; }
-        private IQueryable<ContactDTO>? _Contacts { get; set; }
-        private IQueryable<ContactDTO>? _Filtereds { get; set; }
-        private string _filterEmail { get; set; } = string.Empty;
+        #region Filter
+        bool _DisabledFilterDismiss = true;
+        string _EmailFilter = string.Empty;
+        string _NameFilter = string.Empty;
+
+        IQueryable<ContactDTO>? _FilteredItems
+        {
+            get
+            {
+                var result = _Contacts;
+
+                if (result is not null && !string.IsNullOrEmpty(_EmailFilter))
+                {
+                    result = result.Where(c => c.Email.Contains(_EmailFilter, StringComparison.CurrentCultureIgnoreCase));
+                }
+                if (result is not null && !string.IsNullOrEmpty(_NameFilter))
+                {
+                    result = result.Where(c => c.Name.Contains(_NameFilter, StringComparison.CurrentCultureIgnoreCase));
+                }
+
+                return result;
+            }
+        }
+        #endregion
+
+        #region MessageBar
+        string _messageBar { get; set; } = String.Empty;
+        bool _messageBarVisible { get; set; }
+        MessageIntent _messageIntent { get; set; }
+        string _titleBar { get; set; } = String.Empty;
+        #endregion
 
         protected override async Task OnInitializedAsync()
         {
             await LoadData();
+        }
+
+        private void HandleClear()
+        {
+            if (string.IsNullOrWhiteSpace(_EmailFilter))
+            {
+                _EmailFilter = string.Empty;
+            }
+            if (string.IsNullOrWhiteSpace(_NameFilter))
+            {
+                _NameFilter = string.Empty;
+            }
+        }
+
+        private async Task HandleCloseFilterAsync(KeyboardEventArgs args)
+        {
+            if (args.Key == Constants.KeyEnter && grid is not null)
+            {
+                await grid.CloseColumnOptionsAsync();
+            }
+        }
+
+        private void HandleEmailFilter(ChangeEventArgs args)
+        {
+            if (args.Value is string value)
+            {
+                _EmailFilter = value;
+                OnFilterDismissDisabledChanged();
+            }
+        }
+
+        private void HandleNameFilter(ChangeEventArgs args)
+        {
+            if (args.Value is string value)
+            {
+                _NameFilter = value;
+                OnFilterDismissDisabledChanged();
+            }
         }
 
         private async Task LoadData()
@@ -38,7 +103,6 @@ namespace FrontEnd.Blazor.Pages
                 if (result != null)
                 {
                     _Contacts = result.AsQueryable();
-                    _Filtereds = result.AsQueryable();
                     StateHasChanged();
                 }
             }
@@ -105,7 +169,6 @@ namespace FrontEnd.Blazor.Pages
             }
         }
 
-
         private async void OnEditClicked(ContactDTO itemDTO)
         {
             if (_ContactService == null) return;
@@ -129,12 +192,16 @@ namespace FrontEnd.Blazor.Pages
             }
         }
 
-        private void OnFilterClicked()
+        private void OnFilterDismissClicked()
         {
-            if (_Contacts != null)
-            {
-                _Filtereds = _Contacts!.Where(c => c.Email.Contains(_filterEmail) || _filterEmail.Trim() == string.Empty);
-            }
+            _EmailFilter = string.Empty;
+            _NameFilter = string.Empty;
+            OnFilterDismissDisabledChanged();
+        }
+
+        private void OnFilterDismissDisabledChanged()
+        {
+            _DisabledFilterDismiss = string.IsNullOrWhiteSpace(_EmailFilter) && string.IsNullOrWhiteSpace(_NameFilter);
         }
 
         private async void RefreshData(GeneralResponse response)

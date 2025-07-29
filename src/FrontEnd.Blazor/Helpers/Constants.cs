@@ -13,5 +13,7 @@
         public const string TabList = "tab-list";
         public const string TabContent = "tab-content";
         public const string OptionEmpty = "-- Empty --";
+
+        public const string KeyEnter = "Enter";
     }
 }
