@@ -29,8 +29,8 @@ else
         <PropertyColumn Title="Id" Property="@(c => c!.Id)" Align="Align.Center" />
         <PropertyColumn Title="Name" Property="@(c => c!.Name)" Sortable="true" />
         <TemplateColumn Title="Actions" Align="@Align.End">
-            <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
             <FluentButton Title="Edit" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(() => OnEditClicked(context))" />
+            <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
             <FluentButton Title="Delete" IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))" OnClick="@(() => OnDeleteClicked(context))" />
         </TemplateColumn>
     </FluentDataGrid>

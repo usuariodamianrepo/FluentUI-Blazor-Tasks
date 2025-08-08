@@ -12,8 +12,12 @@
 
         public const string TabList = "tab-list";
         public const string TabContent = "tab-content";
+        public const string TabDetails = "tab-details";
         public const string OptionEmpty = "-- Empty --";
+        public const int ItemsPerPage = 10;
+        public const int ItemsMaxNumber = 100;
 
         public const string KeyEnter = "Enter";
+        public const int KeyCodeEnter = 13;
     }
 }
