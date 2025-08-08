@@ -14,7 +14,7 @@ namespace FrontEnd.Blazor.Pages
         MessageIntent _messageIntent { get; set; }
         bool _showProgress { get; set; } = false;
         string? _titleBar { get; set; }
-        PaginationState _pagination = new PaginationState() { ItemsPerPage = 10 };
+        PaginationState _pagination = new PaginationState() { ItemsPerPage = Constants.ItemsPerPage };
 
         [Inject]
         public required IGenericService<ContactDTO> _ContactService { get; set; }
@@ -112,9 +112,9 @@ namespace FrontEnd.Blazor.Pages
                 if (result != null)
                 {
                     _Txsks = result.AsQueryable();
-                    if (_Txsks.Count() > 100)
+                    if (_Txsks.Count() > Constants.ItemsMaxNumber)
                     {
-                        MessageBar(MessageIntent.Warning, "Search", "Your search returned more than 100 results. Improve your filter.");
+                        MessageBar(MessageIntent.Warning, "Search", $"Your search returned more than {Constants.ItemsMaxNumber} results. Improve your filter.");
                     }
                 }
             }
@@ -201,6 +201,7 @@ namespace FrontEnd.Blazor.Pages
                     PreventDismissOnOverlayClick = true,
                     PreventScroll = true,
                 });
+                _Txsk = null;
             }
         }
 

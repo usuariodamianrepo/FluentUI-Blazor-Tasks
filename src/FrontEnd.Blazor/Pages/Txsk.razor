@@ -37,8 +37,8 @@
                 <PropertyColumn Title="Type" Property="@(c => c!.TxskTypeName)" Sortable="true" />
                 <PropertyColumn Title="Status" Property="@(c => c!.TxskStatusName)" Sortable="true" />
                 <TemplateColumn Title="Actions" Align="@Align.End">
-                    <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
                     <FluentButton Title="Edit" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(() => OnEditClicked(context))" />
+                    <FluentButton Title="Details" IconEnd="@(new Icons.Regular.Size20.AppsListDetail())" OnClick="@(() => OnDetailsClicked(context))" />
                     <FluentButton Title="Delete" IconEnd="@(new Icons.Regular.Size20.Delete().WithColor(Color.Error))" OnClick="@(() => OnDeleteClicked(context))" />
                 </TemplateColumn>
             </FluentDataGrid>

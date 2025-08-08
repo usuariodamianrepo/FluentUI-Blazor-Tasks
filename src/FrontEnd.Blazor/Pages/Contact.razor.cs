@@ -4,21 +4,32 @@ using FrontEnd.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.FluentUI.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Shared;
+using System.Text.Json;
 
 namespace FrontEnd.Blazor.Pages
 {
     public partial class Contact
     {
-        FluentDataGrid<ContactDTO>? _Grid;
-        PaginationState _Pagination = new PaginationState() { ItemsPerPage = Constants.ItemsPerPage};
         [Inject]
         public required IGenericService<ContactDTO> _ContactService { get; set; }
+
         [Inject]
         public required ICustomService _CustomService { get; set; }
 
+        [Inject]
+        public IJSRuntime JS { get; set; } = default!;
+
         ContactDTO? _Contact { get; set; }
+        ContactDTO? _ContactDetails { get; set; }
         IQueryable<ContactDTO>? _Contacts { get; set; }
+
+        #region DataGrid
+        string _ActiveTabId = Constants.TabList;
+        FluentDataGrid<ContactDTO>? _Grid;
+        PaginationState _Pagination = new PaginationState() { ItemsPerPage = Constants.ItemsPerPage };
+        #endregion
 
         #region Search
         string _CompanySearch = string.Empty;
@@ -56,10 +67,10 @@ namespace FrontEnd.Blazor.Pages
         #endregion
 
         #region MessageBar
-        string _messageBar { get; set; } = String.Empty;
-        bool _messageBarVisible { get; set; }
-        MessageIntent _messageIntent { get; set; }
-        string _titleBar { get; set; } = String.Empty;
+        string _MessageBar { get; set; } = String.Empty;
+        MessageIntent _MessageBarIntent { get; set; }
+        string _MessageBarTitle { get; set; } = String.Empty;
+        bool _MessageBarVisible { get; set; }
         #endregion
 
         protected override async Task OnInitializedAsync()
@@ -107,7 +118,7 @@ namespace FrontEnd.Blazor.Pages
 
         private async void KeyDownHandler(FluentKeyCodeEventArgs e)
         {
-            if(e.KeyCode == Constants.KeyCodeEnter)
+            if (e.KeyCode == Constants.KeyCodeEnter)
             {
                 StateHasChanged();
                 await SearchData();
@@ -116,30 +127,29 @@ namespace FrontEnd.Blazor.Pages
 
         private void MessageBar(MessageIntent intent, string title, string message)
         {
-            _messageIntent = intent;
-            _titleBar = title;
-            _messageBar = message;
-            _messageBarVisible = true;
+            _MessageBarIntent = intent;
+            _MessageBarTitle = title;
+            _MessageBar = message;
+            _MessageBarVisible = true;
             StateHasChanged();
         }
 
-        private async void OnAddClicked()
+        private void OnAddClicked()
         {
-            _Contact = new ContactDTO();
+            _Contact = new();
+            _ActiveTabId = Constants.TabContent;
+        }
 
-            var dialog = await DialogService.ShowDialogAsync<ContactDialog>(_Contact, new DialogParameters()
-            {
-                Title = $"Creating Contact",
-                PreventDismissOnOverlayClick = true,
-                PreventScroll = true,
-            });
+        private void OnCancelContentClicked()
+        {
+            _ActiveTabId = Constants.TabList;
+            _Contact = null;
+        }
 
-            var result = await dialog.Result;
-            if (!result.Cancelled && result.Data != null)
-            {
-                _Contact = (ContactDTO)result.Data;
-                RefreshData(await _ContactService.CreateAsync(Constants.ContactApiUrl, _Contact));
-            }
+        private void OnCancelDetailsClicked()
+        {
+            _ActiveTabId = Constants.TabList;
+            _ContactDetails = null;
         }
 
         private async void OnClearSearchClicked()
@@ -153,6 +163,20 @@ namespace FrontEnd.Blazor.Pages
             _CompanySearch = e.Value?.ToString() ?? string.Empty;
         }
 
+        private async Task OnCopyDetailsToClipboard()
+        {
+            if (_ContactDetails != null)
+            {
+                var json = JsonSerializer.Serialize(_ContactDetails, new JsonSerializerOptions { WriteIndented = true });
+                await JS.InvokeVoidAsync("navigator.clipboard.writeText", json);
+                ToastService.ShowSuccess($"Contact Id: {_ContactDetails.Id} copied to clipboard!");
+            }
+            else
+            {
+                ToastService.ShowWarning("No contact selected.");
+            }
+        }
+        
         private async void OnDeleteClicked(ContactDTO itemDTO)
         {
             var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you wanna delete Id: {itemDTO.Id}?", "Yes", "No", "Delete");
@@ -168,40 +192,35 @@ namespace FrontEnd.Blazor.Pages
 
         private async void OnDetailsClicked(ContactDTO itemDTO)
         {
-            if (_ContactService == null) return;
-
-            _Contact = await _ContactService.GetByIdAsync(Constants.ContactApiUrl, itemDTO.Id);
-            if (_Contact != null)
+            if (_ContactService == null)
             {
-                await DialogService.ShowInfoAsync(
-                    $"Email: {_Contact.Email ?? "-"}, " +
-                    $"Company: {_Contact.Company ?? "-"}, " +
-                    $"LastName: {_Contact.LastName ?? "-"}, " +
-                    $"FirstName: {_Contact.FirstName ?? "-"}, " +
-                    $"Phone: {_Contact.Phone ?? "-"}, ", $"Details Contact Id: {_Contact.Id}");
+                ToastService.ShowError("The Contacts Service is not working.");
+                return;
+            }
+
+            _ContactDetails = await _ContactService.GetByIdAsync(Constants.ContactApiUrl, itemDTO.Id);
+
+            if (_ContactDetails != null)
+            {
+                _ActiveTabId = Constants.TabDetails;
+                StateHasChanged();
             }
         }
 
         private async void OnEditClicked(ContactDTO itemDTO)
         {
-            if (_ContactService == null) return;
+            if (_ContactService == null)
+            {
+                ToastService.ShowError("The Contact Service is not working.");
+                return;
+            }
 
             _Contact = await _ContactService.GetByIdAsync(Constants.ContactApiUrl, itemDTO.Id);
+
             if (_Contact != null)
             {
-                var dialog = await DialogService.ShowDialogAsync<ContactDialog>(_Contact, new DialogParameters()
-                {
-                    Title = $"Updating Contact Id: {_Contact.Id}",
-                    PreventDismissOnOverlayClick = true,
-                    PreventScroll = true,
-                });
-
-                var result = await dialog.Result;
-                if (!result.Cancelled && result.Data != null)
-                {
-                    _Contact = (ContactDTO)result.Data;
-                    RefreshData(await _ContactService.UpdateAsync(Constants.ContactApiUrl, _Contact.Id, _Contact));
-                }
+                _ActiveTabId = Constants.TabContent;
+                StateHasChanged();
             }
         }
 
@@ -235,6 +254,20 @@ namespace FrontEnd.Blazor.Pages
         private void OnPhoneSearchChanged(ChangeEventArgs e)
         {
             _PhoneSearch = e.Value?.ToString() ?? string.Empty;
+        }
+
+        private async Task OnSaveContentClicked()
+        {
+            if (_Contact!.Id == 0)
+            {
+                RefreshData(await _ContactService.CreateAsync(Constants.ContactApiUrl, _Contact));
+            }
+            else
+            {
+                RefreshData(await _ContactService.UpdateAsync(Constants.ContactApiUrl, _Contact.Id, _Contact));
+            }
+            _ActiveTabId = Constants.TabList;
+            _Contact = null;
         }
 
         private async void OnSearchClicked()
@@ -273,7 +306,7 @@ namespace FrontEnd.Blazor.Pages
                     }
                     else
                     {
-                        _messageBarVisible = false;
+                        _MessageBarVisible = false;
                     }
                 }
             }
