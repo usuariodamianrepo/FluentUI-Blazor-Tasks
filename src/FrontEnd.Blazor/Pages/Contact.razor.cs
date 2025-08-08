@@ -10,13 +10,25 @@ namespace FrontEnd.Blazor.Pages
 {
     public partial class Contact
     {
-        PaginationState _pagination = new PaginationState() { ItemsPerPage = 10 };
-        FluentDataGrid<ContactDTO>? grid;
-
+        FluentDataGrid<ContactDTO>? _Grid;
+        PaginationState _Pagination = new PaginationState() { ItemsPerPage = Constants.ItemsPerPage};
         [Inject]
         public required IGenericService<ContactDTO> _ContactService { get; set; }
+        [Inject]
+        public required ICustomService _CustomService { get; set; }
+
         ContactDTO? _Contact { get; set; }
         IQueryable<ContactDTO>? _Contacts { get; set; }
+
+        #region Search
+        string _CompanySearch = string.Empty;
+        string _EmailSearch = string.Empty;
+        string _FirstNameSearch = string.Empty;
+        string _LastNameSearch = string.Empty;
+        string _PhoneSearch = string.Empty;
+        bool _ProgressVisible = false;
+        bool _SearchButtonLoading = false;
+        #endregion
 
         #region Filter
         bool _DisabledFilterDismiss = true;
@@ -52,7 +64,7 @@ namespace FrontEnd.Blazor.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            await LoadData();
+            await SearchData();
         }
 
         private void HandleClear()
@@ -69,9 +81,9 @@ namespace FrontEnd.Blazor.Pages
 
         private async Task HandleCloseFilterAsync(KeyboardEventArgs args)
         {
-            if (args.Key == Constants.KeyEnter && grid is not null)
+            if (args.Key == Constants.KeyEnter && _Grid is not null)
             {
-                await grid.CloseColumnOptionsAsync();
+                await _Grid.CloseColumnOptionsAsync();
             }
         }
 
@@ -93,22 +105,12 @@ namespace FrontEnd.Blazor.Pages
             }
         }
 
-        private async Task LoadData()
+        private async void KeyDownHandler(FluentKeyCodeEventArgs e)
         {
-            try
+            if(e.KeyCode == Constants.KeyCodeEnter)
             {
-                if (_ContactService == null) ToastService.ShowError("The Service is not working.");
-
-                var result = await _ContactService!.GetAllAsync(Constants.ContactApiUrl);
-                if (result != null)
-                {
-                    _Contacts = result.AsQueryable();
-                    StateHasChanged();
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBar(MessageIntent.Error, "Error API", e.Message);
+                StateHasChanged();
+                await SearchData();
             }
         }
 
@@ -138,6 +140,17 @@ namespace FrontEnd.Blazor.Pages
                 _Contact = (ContactDTO)result.Data;
                 RefreshData(await _ContactService.CreateAsync(Constants.ContactApiUrl, _Contact));
             }
+        }
+
+        private async void OnClearSearchClicked()
+        {
+            _EmailSearch = _PhoneSearch = _CompanySearch = _FirstNameSearch = _LastNameSearch = string.Empty;
+            await SearchData();
+        }
+
+        private void OnCompanySearchChanged(ChangeEventArgs e)
+        {
+            _CompanySearch = e.Value?.ToString() ?? string.Empty;
         }
 
         private async void OnDeleteClicked(ContactDTO itemDTO)
@@ -192,6 +205,11 @@ namespace FrontEnd.Blazor.Pages
             }
         }
 
+        private void OnEmailSearchChanged(ChangeEventArgs e)
+        {
+            _EmailSearch = e.Value?.ToString() ?? string.Empty;
+        }
+        
         private void OnFilterDismissClicked()
         {
             _EmailFilter = string.Empty;
@@ -204,16 +222,69 @@ namespace FrontEnd.Blazor.Pages
             _DisabledFilterDismiss = string.IsNullOrWhiteSpace(_EmailFilter) && string.IsNullOrWhiteSpace(_NameFilter);
         }
 
+        private void OnFirstNameSearchChanged(ChangeEventArgs e)
+        {
+            _FirstNameSearch = e.Value?.ToString() ?? string.Empty;
+        }
+
+        private void OnLastNameSearchChanged(ChangeEventArgs e)
+        {
+            _LastNameSearch = e.Value?.ToString() ?? string.Empty;
+        }
+        
+        private void OnPhoneSearchChanged(ChangeEventArgs e)
+        {
+            _PhoneSearch = e.Value?.ToString() ?? string.Empty;
+        }
+
+        private async void OnSearchClicked()
+        {
+            await SearchData();
+        }
+
         private async void RefreshData(GeneralResponse response)
         {
             if (response.Success)
             {
                 ToastService.ShowSuccess(response.Message);
-                await LoadData();
+                await SearchData();
             }
             else
             {
                 ToastService.ShowError(response.Message);
+            }
+        }
+
+        private async Task SearchData()
+        {
+            try
+            {
+                _ProgressVisible = _SearchButtonLoading = true;
+
+                if (_CustomService == null) ToastService.ShowError("The Service is not working.");
+                
+                var result = await _CustomService!.GetContactByFilterAsync(Constants.ContactApiUrl, _EmailSearch, _CompanySearch, _FirstNameSearch, _LastNameSearch, _PhoneSearch);
+                if (result != null)
+                {
+                    _Contacts = result.AsQueryable();
+                    if (_Contacts.Count() >= Constants.ItemsMaxNumber)
+                    {
+                        MessageBar(MessageIntent.Warning, "Search", $"Your search returned more than {Constants.ItemsMaxNumber} results. Improve your filter.");
+                    }
+                    else
+                    {
+                        _messageBarVisible = false;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBar(MessageIntent.Error, "Error API", e.Message);
+            }
+            finally
+            {
+                _ProgressVisible = _SearchButtonLoading = false;
+                StateHasChanged();
             }
         }
     }

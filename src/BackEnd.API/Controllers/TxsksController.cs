@@ -61,7 +61,7 @@ namespace BackEnd.API.Controllers
             if (dueDateTo.HasValue)
                 query = query.Where(t => t.DueDate <= dueDateTo.Value);
 
-            var filteredItems = await query.Take(101).ToListAsync();
+            var filteredItems = await query.Take(100).ToListAsync();
 
             return Ok(_mapper.Map<IEnumerable<Txsk>, IEnumerable<TxskDTO>>(filteredItems));
         }

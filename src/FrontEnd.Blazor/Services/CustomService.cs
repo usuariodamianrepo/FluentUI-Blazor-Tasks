@@ -1,10 +1,12 @@
 ﻿using FrontEnd.Blazor.Helpers;
+using Microsoft.VisualBasic;
 using Shared;
+using System;
 using System.Net.Http.Json;
 
 namespace FrontEnd.Blazor.Services
 {
-    public class CustomService: ICustomService
+    public class CustomService : ICustomService
     {
         private readonly GetHttpClient _GetHttpClient;
 
@@ -17,6 +19,26 @@ namespace FrontEnd.Blazor.Services
         {
             var httpClient = await _GetHttpClient.GetPrivateHttpClient();
             var response = await httpClient.GetFromJsonAsync<IEnumerable<ContactDTO>>($"{url}/byName?name={name}");
+            return response ?? new List<ContactDTO>();
+        }
+
+        public async Task<IEnumerable<ContactDTO>> GetContactByFilterAsync(string url,
+             string? email,
+             string? company,
+             string? firstName,
+             string? lastName,
+             string? phone)
+        {
+            var query = new List<string>();
+            query.Add($"email={email}");
+            query.Add($"company={company}");
+            query.Add($"firstName={firstName}");
+            query.Add($"lastName={lastName}");
+            query.Add($"phone={phone}");
+            var queryString = query.Count > 0 ? "?" + string.Join("&", query) : string.Empty;
+
+            var httpClient = await _GetHttpClient.GetPrivateHttpClient();
+            var response = await httpClient.GetFromJsonAsync<IEnumerable<ContactDTO>>($"{url}/filter{queryString}");
             return response ?? new List<ContactDTO>();
         }
 

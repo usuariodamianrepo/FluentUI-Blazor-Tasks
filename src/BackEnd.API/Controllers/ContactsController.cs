@@ -36,6 +36,32 @@ namespace BackEnd.API.Controllers
             return Ok(new GeneralResponse(true, $"Contact Id: {id} was deleted!"));
         }
 
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<ContactDTO>>> GetByFilterContacts(
+            [FromQuery] string? email,
+            [FromQuery] string? company,
+            [FromQuery] string? firstName,
+            [FromQuery] string? lastName,
+            [FromQuery] string? phone)
+        {
+            var query = _context.Contacts.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(email))
+                query = query.Where(t => t.Email.Contains(email));
+            if (!string.IsNullOrWhiteSpace(company))
+                query = query.Where(t => t.Company != null && t.Company.Contains(company));
+            if (!string.IsNullOrWhiteSpace(firstName))
+                query = query.Where(t => t.FirstName.Contains(firstName));
+            if (!string.IsNullOrWhiteSpace(lastName))
+                query = query.Where(t => t.LastName.Contains(lastName));
+            if (!string.IsNullOrWhiteSpace(phone))
+                query = query.Where(t => t.Phone != null && t.Phone.Contains(phone));
+
+            var filteredItems = await query.Take(100).ToListAsync();
+
+            return Ok(_mapper.Map<IEnumerable<Contact>, IEnumerable<ContactDTO>>(filteredItems));
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ContactDTO>> GetContact(int id)
         {
@@ -48,7 +74,6 @@ namespace BackEnd.API.Controllers
 
             return Ok(_mapper.Map<Contact, ContactDTO>(oneItem));
         }
-
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
         {
