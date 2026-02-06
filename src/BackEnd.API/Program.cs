@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorWasm",
         builder => builder
-        .WithOrigins("https://localhost:7194","http://localhost:5132")
+        .WithOrigins("http://localhost:5132") // Blazor default dev URL
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
