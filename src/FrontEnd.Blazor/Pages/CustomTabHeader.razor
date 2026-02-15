@@ -1,0 +1,25 @@
+﻿@using static FrontEnd.Blazor.Helpers.Emuns
+
+@if (Operation == OperationTypes.Add)
+{
+    <FluentIcon Value="@(new Icons.Regular.Size20.Edit())" />
+    <FluentLabel>Add</FluentLabel>
+}
+else if (Operation == OperationTypes.Edit)
+{
+    <FluentIcon Value="@(new Icons.Regular.Size16.Edit())" />
+    @($" Edit - Id: {Id}")
+}
+else if (Operation == OperationTypes.Details)
+{
+    <FluentIcon Value="@(new Icons.Regular.Size20.AppsListDetail())" />
+    @($" Details - Id: {Id}")
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; } = 0;
+
+    [Parameter]
+    public OperationTypes Operation { get; set; } = OperationTypes.Add;
+}

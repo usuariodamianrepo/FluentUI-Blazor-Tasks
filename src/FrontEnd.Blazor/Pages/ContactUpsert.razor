@@ -1,0 +1,19 @@
+﻿@using FrontEnd.Blazor.Helpers
+@using Shared;
+@using Microsoft.FluentUI.AspNetCore.Components;
+@inject IToastService ToastService
+@inject IMessageService MessageService
+
+<EditForm Model="Contact" OnValidSubmit="OnSaveClicked">
+    <DataAnnotationsValidator />
+    <FluentTextField Label="Email" @bind-Value=Contact.Email Maxlength=120 Size=120 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+    <FluentTextField Label="Company" @bind-Value=Contact.Company Maxlength=60 Size=60 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+    <FluentTextField Label="LastName" @bind-Value=Contact.LastName Maxlength=60 Size=60 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+    <FluentTextField Label="FirstName" @bind-Value=Contact.FirstName Maxlength=60 Size=60 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+    <FluentTextField Label="Phone" @bind-Value=Contact.Phone Maxlength=60 Size=60 TextFieldType="TextFieldType.Text" AutoComplete="off" />
+    <div style="color: var(--error);">
+        <FluentValidationSummary />
+    </div>
+    <br />
+    <FluentButton Type="ButtonType.Submit" Title="Save" IconStart="@(new Icons.Regular.Size20.Save())" Appearance="Appearance.Accent">Save</FluentButton>
+</EditForm>

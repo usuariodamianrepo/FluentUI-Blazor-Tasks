@@ -1,0 +1,11 @@
+﻿@using Microsoft.FluentUI.AspNetCore.Components;
+@inject IToastService ToastService
+
+<FluentTextField Label="Email" @bind-Value=Details.Email Size=120 ReadOnly />
+<FluentTextField Label="Company" @bind-Value=Details.Company Size=60 ReadOnly />
+<FluentTextField Label="LastName" @bind-Value=Details.LastName Size=60 ReadOnly />
+<FluentTextField Label="FirstName" @bind-Value=Details.FirstName Size=60 ReadOnly />
+<FluentTextField Label="Phone" @bind-Value=Details.Phone Size=60 ReadOnly />
+<br />
+<FluentButton Title="Copy" IconStart="@(new Icons.Regular.Size20.Copy())" Appearance="Appearance.Neutral" OnClick="OnCopyDetailsToClipboard">Copy</FluentButton>
+
