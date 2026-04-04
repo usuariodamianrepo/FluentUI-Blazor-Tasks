@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Shared
 {
-    public partial class TxskDTO
+    public partial class TxskDTO // Suggested Model name TaskDTO. The DTO namespace is correct ✔️
     {
         [Key]
         public int Id { get; set; }

@@ -12,7 +12,9 @@ namespace BackEnd.API.Controllers
     [Authorize]
     public class ContactsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _context; // Soc: According to the Separations of Concerns Principle, DbContext should not bellong to UI Layer
+                                                // DI: having a concrete implementation does not allow the Dependency Injection
+                                                // Suggestion: Use a N-layer architecture or Repository to access the data source
         private readonly IMapper _mapper;
 
         public ContactsController(AppDbContext context, IMapper mapper)

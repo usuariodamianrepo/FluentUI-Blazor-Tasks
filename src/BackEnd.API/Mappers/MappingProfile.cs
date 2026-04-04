@@ -14,9 +14,9 @@ namespace BackEnd.Api.Mappers
             CreateMap<TxskType, TxskTypeDTO>();
             CreateMap<TxskTypeDTO, TxskType>();
 
-            CreateMap<TxskStatus, TxskStatusDTO>();
-            CreateMap<TxskStatusDTO, TxskStatus>();
-
+            CreateMap<TxskStatus, TxskStatusDTO>().ReverseMap(); // According to Automapper documentation allows mapping in both directions :
+            // https://docs.automapper.io/en/stable/Reverse-Mapping-and-Unflattening.html
+                                                  
             CreateMap<Txsk, TxskDTO>();
             CreateMap<TxskDTO, Txsk>();
 
@@ -26,7 +26,7 @@ namespace BackEnd.Api.Mappers
                 .ForMember(d => d.ContactId, opt => opt.MapFrom(src => src.ContactId))
                 .ForMember(d => d.ContactName, opt => opt.MapFrom(src => src.Contact.Name))
                 .ForMember(d => d.DueDate, opt => opt.MapFrom(src => src.DueDate))
-                .ForMember(d => d.TxskTypeId, opt => opt.MapFrom(src => src.TxskTypeId))
+                .ForMember(d => d.TxskTypeId, opt => opt.MapFrom(src => src.TaskTypeId))
                 .ForMember(d => d.TxskTypeName, opt => opt.MapFrom(src => src.TxskType.Name))
                 .ForMember(d => d.TxskStatusId, opt => opt.MapFrom(src => src.TxskStatusId))
                 .ForMember(d => d.TxskStatusName, opt => opt.MapFrom(src => src.TxskStatus!.Name));
