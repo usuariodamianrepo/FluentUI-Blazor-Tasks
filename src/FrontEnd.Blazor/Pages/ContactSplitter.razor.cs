@@ -267,8 +267,9 @@ namespace FrontEnd.Blazor.Pages
             else
             {
                 RefreshData(await _ContactService.UpdateAsync(Constants.ContactApiUrl, _Contact.Id, _Contact));
+                if (_ContactDetails != null && _ContactDetails.Id == _Contact!.Id)
+                    _ContactDetails = null;
             }
-            //_ActiveTabId = Constants.TabList;
             _Contact = null;
         }
 

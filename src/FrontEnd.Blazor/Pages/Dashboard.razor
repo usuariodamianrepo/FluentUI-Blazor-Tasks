@@ -1,0 +1,74 @@
+﻿@page "/"
+@using FrontEnd.Blazor.Helpers
+@using Shared;
+@using Microsoft.FluentUI.AspNetCore.Components;
+
+<FluentGrid Spacing="2" OnBreakpointEnter="@OnBreakpointEnterHandler" AdaptiveRendering="true" Justify="@Justification">
+    <FluentGridItem xs="6" sm="3">
+        <FluentCard>
+            <FluentGrid Justify="JustifyContent.Center">
+                <FluentGridItem>
+                    <FluentLabel Typo="Typography.H6"> Earnings (Monthly) </FluentLabel>
+                    <FluentLabel Typo="Typography.H3">$ 12.000</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem HiddenWhen="GridItemHidden.SmAndDown">
+                    <FluentIcon Value="@(new Icons.Regular.Size48.DataTrending())" />
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="6" sm="3">
+        <FluentCard>
+            <FluentGrid Justify="JustifyContent.Center">
+                <FluentGridItem>
+                    <FluentLabel Typo="Typography.H6">Earnings (Annual)</FluentLabel>
+                    <FluentLabel Typo="Typography.H3">$ 230k</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem HiddenWhen="GridItemHidden.SmAndDown">
+                    <FluentIcon Id="annual" Value="@(new Icons.Regular.Size48.DataUsage())" />
+                    <FluentTooltip Anchor="annual">
+                        The annual cycle begins in <i>November</i>.
+                    </FluentTooltip>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="6" sm="3">
+        <FluentCard>
+            <FluentGrid Justify="JustifyContent.Center">
+                <FluentGridItem>
+                    <FluentLabel Typo="Typography.H6">Tasks Complete</FluentLabel>
+                    <FluentLabel Typo="Typography.H3" Color="Color.Error">21%</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem HiddenWhen="GridItemHidden.SmAndDown">
+                    <FluentIcon Value="@(new Icons.Regular.Size48.ShieldTask())" Color="Color.Error" />
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="6" sm="3">
+        <FluentCard>
+            <FluentGrid Justify="JustifyContent.Center">
+                <FluentGridItem>
+                    <FluentLabel Typo="Typography.H6">Pending to Close</FluentLabel>
+                    <FluentLabel Typo="Typography.H3">132</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem HiddenWhen="GridItemHidden.SmAndDown">
+                    <FluentIcon Value="@(new Icons.Regular.Size48.Clock())" />
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="12" sm="8">
+        <FluentCard>
+            <FluentLabel Typo="Typography.H6" Style="padding-bottom:5px">Completed Totals Tasks</FluentLabel>
+            <span>TODO: BarChart</span>
+        </FluentCard>
+    </FluentGridItem>
+    <FluentGridItem xs="12" sm="4">
+        <FluentCard>
+            <FluentLabel Typo="Typography.H6" Style="padding-bottom:5px">Status Tasks</FluentLabel>
+            <span>TODO: PieChart</span>
+        </FluentCard>
+    </FluentGridItem>
+</FluentGrid>
