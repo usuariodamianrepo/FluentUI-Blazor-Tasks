@@ -1,7 +1,6 @@
 ---
 name: api-rest
-description: For one specific class create its API REST, this include the controller, the DTO and the configurations necessary to run the proyect.
-For all examples code we will use T4 text anotation. T4 text template is a mixture of text blocks and control logic that can generate a text file.
+description: For one specific class create its API REST, this include the controller, the DTO and the configurations necessary to run the proyect. For all examples code we will use T4 text anotation. T4 text template is a mixture of text blocks and control logic that can generate a text file.
 ---
 
 # API Create
