@@ -1,6 +1,6 @@
 ﻿namespace BackEnd.API.Helpers
 {
-    public class JwtSection
+    public class JwtSection // What is the purpouse of JwtSection as a Helper ?
     {
         public string? Key { get; set; }
         public string? Issuer { get; set; }

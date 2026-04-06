@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 namespace BackEnd.API.Data;
 
-public partial class Contact
+public partial class Contact // Layered Architecture : this model should not be in the UI / API namespace
 {
     [Required]
     public int Id { get; set; }
