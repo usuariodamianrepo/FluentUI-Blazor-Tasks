@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Shared
 {
-    public partial class TxskTypeDTO
+    public sealed class TxskTypeDTO
     {
         [Key]
         public int Id { get; set; }

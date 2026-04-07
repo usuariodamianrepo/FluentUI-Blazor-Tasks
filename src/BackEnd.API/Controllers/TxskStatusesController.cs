@@ -1,6 +1,5 @@
-
-using AutoMapper;
 using BackEnd.API.Data;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,19 +13,25 @@ namespace BackEnd.API.Controllers
     public class TxskStatusesController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public TxskStatusesController(AppDbContext context, IMapper mapper)
+        public TxskStatusesController(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<TxskStatusDTO>>> GetTxskStatuses()
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
         {
-            var allItems = await _context.TxskStatuses.ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<TxskStatus>, IEnumerable<TxskStatusDTO>>(allItems));
+            var contact = await _context.TxskStatuses.FindAsync(id);
+            if (contact == null)
+            {
+                return NotFound(new GeneralResponse(false, $"Not Found TxskStatus Id: {id} to delete."));
+            }
+
+            _context.TxskStatuses.Remove(contact);
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"TxskStatus Id: {id} was deleted!"));
         }
 
         [HttpGet("{id}")]
@@ -39,7 +44,22 @@ namespace BackEnd.API.Controllers
                 return NotFound(new GeneralResponse(false, $"TxskStatus Id: {id} not found."));
             }
 
-            return Ok(_mapper.Map<TxskStatus, TxskStatusDTO>(oneItem));
+            return Ok(oneItem.Adapt<TxskStatusDTO>());
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TxskStatusDTO>>> GetTxskStatuses()
+        {
+            var allItems = await _context.TxskStatuses.ToListAsync();
+            return Ok(allItems.Adapt<List<TxskStatusDTO>>());
+        }
+        [HttpPost]
+        public async Task<ActionResult<GeneralResponse>> PostTxskStatus(TxskStatusDTO toAdd)
+        {
+            var newItem = _context.TxskStatuses.Add(toAdd.Adapt<TxskStatus>());
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"TxskStatus Id: {newItem.Entity.Id} was created!"));
         }
 
         [HttpPut("{id}")]
@@ -50,7 +70,7 @@ namespace BackEnd.API.Controllers
                 return BadRequest(new GeneralResponse(false, $"TxskStatus Id: {id} mismatch."));
             }
 
-            _context.Entry(_mapper.Map<TxskStatusDTO, TxskStatus>(toUpdateDTO)).State = EntityState.Modified;
+            _context.Entry(toUpdateDTO.Adapt<TxskStatus>()).State = EntityState.Modified;
 
             try
             {
@@ -70,31 +90,6 @@ namespace BackEnd.API.Controllers
 
             return Ok(new GeneralResponse(true, $"TxskStatus Id: {id} was updated!"));
         }
-
-        [HttpPost]
-        public async Task<ActionResult<GeneralResponse>> PostTxskStatus(TxskStatusDTO toAdd)
-        {
-            var newItem = _context.TxskStatuses.Add(_mapper.Map<TxskStatusDTO, TxskStatus>(toAdd));
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"TxskStatus Id: {newItem.Entity.Id} was created!"));
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
-        {
-            var contact = await _context.TxskStatuses.FindAsync(id);
-            if (contact == null)
-            {
-                return NotFound(new GeneralResponse(false, $"Not Found TxskStatus Id: {id} to delete."));
-            }
-
-            _context.TxskStatuses.Remove(contact);
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"TxskStatus Id: {id} was deleted!"));
-        }
-
         private bool TxskStatusExists(int id)
         {
             return _context.TxskStatuses.Any(e => e.Id == id);

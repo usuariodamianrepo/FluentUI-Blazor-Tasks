@@ -9,23 +9,35 @@ namespace BackEnd.API.Controllers
     [AllowAnonymous]
     public class WeatherForecastController : ControllerBase
     {
-        private readonly int milliseconds = 100;
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
-
+        private readonly int milliseconds = 100;
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
         }
 
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<GeneralResponse>> Delete(int id)
+        {
+            await Task.Delay(milliseconds);
+            try
+            {
+                return Ok(new GeneralResponse(true, $"Weather with Id: {id} delete successfully."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet]
         public async Task<IEnumerable<WeatherForecastDTO>> Get()
         {
-            //Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
             await Task.Delay(milliseconds);
             return Enumerable.Range(1, 5).Select(index => new WeatherForecastDTO
             {
@@ -77,20 +89,5 @@ namespace BackEnd.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<GeneralResponse>> Delete(int id)
-        {
-            await Task.Delay(milliseconds);
-            try
-            {
-                return Ok(new GeneralResponse(true, $"Weather with Id: {id} delete successfully."));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
     }
 }

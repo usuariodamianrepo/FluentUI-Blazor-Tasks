@@ -1,6 +1,6 @@
 
-using AutoMapper;
 using BackEnd.API.Data;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,19 +14,25 @@ namespace BackEnd.API.Controllers
     public class TxskTypesController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public TxskTypesController(AppDbContext context, IMapper mapper)
+        public TxskTypesController(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<TxskTypeDTO>>> GetTxskTypes()
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
         {
-            var allItems = await _context.TxskTypes.ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<TxskType>, IEnumerable<TxskTypeDTO>>(allItems));
+            var contact = await _context.TxskTypes.FindAsync(id);
+            if (contact == null)
+            {
+                return NotFound(new GeneralResponse(false, $"Not Found TxskType Id: {id} to delete."));
+            }
+
+            _context.TxskTypes.Remove(contact);
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"TxskType Id: {id} was deleted!"));
         }
 
         [HttpGet("{id}")]
@@ -39,7 +45,22 @@ namespace BackEnd.API.Controllers
                 return NotFound(new GeneralResponse(false, $"TxskType Id: {id} not found."));
             }
 
-            return Ok(_mapper.Map<TxskType, TxskTypeDTO>(oneItem));
+            return Ok(oneItem.Adapt<TxskTypeDTO>());
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TxskTypeDTO>>> GetTxskTypes()
+        {
+            var allItems = await _context.TxskTypes.ToListAsync();
+            return Ok(allItems.Adapt<IEnumerable<TxskTypeDTO>>());
+        }
+        [HttpPost]
+        public async Task<ActionResult<GeneralResponse>> PostTxskType(TxskTypeDTO toAdd)
+        {
+            var newItem = _context.TxskTypes.Add(toAdd.Adapt<TxskType>());
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"TxskType Id: {newItem.Entity.Id} was created!"));
         }
 
         [HttpPut("{id}")]
@@ -50,7 +71,7 @@ namespace BackEnd.API.Controllers
                 return BadRequest(new GeneralResponse(false, $"TxskType Id: {id} mismatch."));
             }
 
-            _context.Entry(_mapper.Map<TxskTypeDTO, TxskType>(toUpdateDTO)).State = EntityState.Modified;
+            _context.Entry(toUpdateDTO.Adapt<TxskType>()).State = EntityState.Modified;
 
             try
             {
@@ -70,31 +91,6 @@ namespace BackEnd.API.Controllers
 
             return Ok(new GeneralResponse(true, $"TxskType Id: {id} was updated!"));
         }
-
-        [HttpPost]
-        public async Task<ActionResult<GeneralResponse>> PostTxskType(TxskTypeDTO toAdd)
-        {
-            var newItem = _context.TxskTypes.Add(_mapper.Map<TxskTypeDTO, TxskType>(toAdd));
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"TxskType Id: {newItem.Entity.Id} was created!"));
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
-        {
-            var contact = await _context.TxskTypes.FindAsync(id);
-            if (contact == null)
-            {
-                return NotFound(new GeneralResponse(false, $"Not Found TxskType Id: {id} to delete."));
-            }
-
-            _context.TxskTypes.Remove(contact);
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"TxskType Id: {id} was deleted!"));
-        }
-
         private bool TxskTypeExists(int id)
         {
             return _context.TxskTypes.Any(e => e.Id == id);

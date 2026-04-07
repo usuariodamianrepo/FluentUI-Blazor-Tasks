@@ -2,7 +2,7 @@
 
 namespace Shared
 {
-    public class UserLoginDTO
+    public sealed class UserLoginDTO
     {
         [Required]
         public string Email { get; set; } = string.Empty;

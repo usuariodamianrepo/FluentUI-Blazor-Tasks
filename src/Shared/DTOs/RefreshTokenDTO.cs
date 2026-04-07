@@ -1,6 +1,6 @@
 ﻿namespace Shared
 {
-    public class RefreshTokenDTO
+    public sealed class RefreshTokenDTO
     {
         public string? Token { get; set; }
     }

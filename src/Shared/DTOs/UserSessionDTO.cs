@@ -1,6 +1,6 @@
 ﻿namespace Shared
 {
-    public class UserSessionDTO
+    public sealed class UserSessionDTO
     {
         public string? Token { get; set; }
 

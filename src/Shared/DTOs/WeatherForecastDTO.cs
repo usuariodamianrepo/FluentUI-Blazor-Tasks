@@ -1,6 +1,6 @@
 namespace Shared
 {
-    public record class WeatherForecastDTO
+    public sealed class WeatherForecastDTO
     {
         public int Id { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace Shared
 {
-    public class UserRegisterDTO
+    public sealed class UserRegisterDTO
     {
         [Required]
         [MinLength(5)]

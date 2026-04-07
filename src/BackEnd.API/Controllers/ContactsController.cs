@@ -1,5 +1,5 @@
-using AutoMapper;
 using BackEnd.API.Data;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +13,10 @@ namespace BackEnd.API.Controllers
     public class ContactsController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public ContactsController(AppDbContext context, IMapper mapper)
+        public ContactsController(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         [HttpDelete("{id}")]
@@ -59,7 +57,7 @@ namespace BackEnd.API.Controllers
 
             var filteredItems = await query.Take(100).ToListAsync();
 
-            return Ok(_mapper.Map<IEnumerable<Contact>, IEnumerable<ContactDTO>>(filteredItems));
+            return Ok(filteredItems.Adapt<IEnumerable<ContactDTO>>());
         }
 
         [HttpGet("{id}")]
@@ -72,13 +70,13 @@ namespace BackEnd.API.Controllers
                 return NotFound(new GeneralResponse(false, $"Contact Id: {id} not found."));
             }
 
-            return Ok(_mapper.Map<Contact, ContactDTO>(oneItem));
+            return Ok(oneItem.Adapt<ContactDTO>());
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContactDTO>>> GetContacts()
         {
             var allItems = await _context.Contacts.ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<Contact>, IEnumerable<ContactDTO>>(allItems));
+            return Ok(allItems.Adapt<IEnumerable<ContactDTO>>());
         }
 
         [HttpGet("byName")]
@@ -89,17 +87,17 @@ namespace BackEnd.API.Controllers
                 return BadRequest(new GeneralResponse(false, $"The parameter name is null or empty."));
             }
 
-            var allItems = await _context.Contacts.Where(c => c.FirstName.StartsWith(name) || c.LastName.StartsWith(name)) 
+            var allItems = await _context.Contacts.Where(c => c.FirstName.StartsWith(name) || c.LastName.StartsWith(name))
                                   .OrderBy(i => i.FirstName)
                                   .ToListAsync();
 
-            return Ok(_mapper.Map<IEnumerable<Contact>, IEnumerable<ContactDTO>>(allItems));
+            return Ok(allItems.Adapt<IEnumerable<ContactDTO>>());
         }
 
         [HttpPost]
         public async Task<ActionResult<GeneralResponse>> PostContact(ContactDTO toAdd)
         {
-            var newItem = _context.Contacts.Add(_mapper.Map<ContactDTO, Contact>(toAdd));
+            var newItem = _context.Contacts.Add(toAdd.Adapt<Contact>());
             await _context.SaveChangesAsync();
 
             return Ok(new GeneralResponse(true, $"Contact Id: {newItem.Entity.Id} was created!"));
@@ -113,7 +111,7 @@ namespace BackEnd.API.Controllers
                 return BadRequest(new GeneralResponse(false, $"Contact Id: {id} mismatch."));
             }
 
-            _context.Entry(_mapper.Map<ContactDTO, Contact>(toUpdateDTO)).State = EntityState.Modified;
+            _context.Entry(toUpdateDTO.Adapt<Contact>()).State = EntityState.Modified;
 
             try
             {
@@ -133,7 +131,7 @@ namespace BackEnd.API.Controllers
 
             return Ok(new GeneralResponse(true, $"Contact Id: {id} was updated!"));
         }
-        
+
         private bool ContactExists(int id)
         {
             return _context.Contacts.Any(e => e.Id == id);

@@ -1,6 +1,6 @@
 
-using AutoMapper;
 using BackEnd.API.Data;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,24 +14,25 @@ namespace BackEnd.API.Controllers
     public class TxsksController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public TxsksController(AppDbContext context, IMapper mapper)
+        public TxsksController(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<TxskDTO>>> GetTxsks()
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
         {
-            var allItems = await _context.Txsks
-                .Include("Contact")
-                .Include("TxskStatus")
-                .Include("TxskType")
-                .ToListAsync();
-            
-            return Ok(_mapper.Map<IEnumerable<Txsk>, IEnumerable<TxskDTO>>(allItems));
+            var contact = await _context.Txsks.FindAsync(id);
+            if (contact == null)
+            {
+                return NotFound(new GeneralResponse(false, $"Not Found Txsk Id: {id} to delete."));
+            }
+
+            _context.Txsks.Remove(contact);
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"Txsk Id: {id} was deleted!"));
         }
 
         [HttpGet("filter")]
@@ -63,7 +64,7 @@ namespace BackEnd.API.Controllers
 
             var filteredItems = await query.Take(100).ToListAsync();
 
-            return Ok(_mapper.Map<IEnumerable<Txsk>, IEnumerable<TxskDTO>>(filteredItems));
+            return Ok(filteredItems.Adapt<IEnumerable<TxskDTO>>());
         }
 
         [HttpGet("{id}")]
@@ -80,7 +81,27 @@ namespace BackEnd.API.Controllers
                 return NotFound(new GeneralResponse(false, $"Txsk Id: {id} not found."));
             }
 
-            return Ok(_mapper.Map<Txsk, TxskDTO>(oneItem));
+            return Ok(oneItem.Adapt<TxskDTO>());
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TxskDTO>>> GetTxsks()
+        {
+            var allItems = await _context.Txsks
+                .Include("Contact")
+                .Include("TxskStatus")
+                .Include("TxskType")
+                .ToListAsync();
+            
+            return Ok(allItems.Adapt<IEnumerable<TxskDTO>>());
+        }
+        [HttpPost]
+        public async Task<ActionResult<GeneralResponse>> PostTxsk(TxskDTO toAdd)
+        {
+            var newItem = _context.Txsks.Add(toAdd.Adapt<Txsk>());
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"Txsk Id: {newItem.Entity.Id} was created!"));
         }
 
         [HttpPut("{id}")]
@@ -91,7 +112,7 @@ namespace BackEnd.API.Controllers
                 return BadRequest(new GeneralResponse(false, $"Txsk Id: {id} mismatch."));
             }
 
-            _context.Entry(_mapper.Map<TxskDTO, Txsk>(toUpdateDTO)).State = EntityState.Modified;
+            _context.Entry(toUpdateDTO.Adapt<Txsk>()).State = EntityState.Modified;
 
             try
             {
@@ -111,31 +132,6 @@ namespace BackEnd.API.Controllers
 
             return Ok(new GeneralResponse(true, $"Txsk Id: {id} was updated!"));
         }
-
-        [HttpPost]
-        public async Task<ActionResult<GeneralResponse>> PostTxsk(TxskDTO toAdd)
-        {
-            var newItem = _context.Txsks.Add(_mapper.Map<TxskDTO, Txsk>(toAdd));
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"Txsk Id: {newItem.Entity.Id} was created!"));
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
-        {
-            var contact = await _context.Txsks.FindAsync(id);
-            if (contact == null)
-            {
-                return NotFound(new GeneralResponse(false, $"Not Found Txsk Id: {id} to delete."));
-            }
-
-            _context.Txsks.Remove(contact);
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"Txsk Id: {id} was deleted!"));
-        }
-
         private bool TxskExists(int id)
         {
             return _context.Txsks.Any(e => e.Id == id);
