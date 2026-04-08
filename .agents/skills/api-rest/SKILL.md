@@ -1,19 +1,19 @@
 ---
 name: api-rest
-description: For one specific class create its API REST, this include the controller, the DTO and the configurations necessary to run the proyect. For all examples code we will use T4 text anotation. T4 text template is a mixture of text blocks and control logic that can generate a text file.
+description: Create its API REST form specific class, this include the controller, the DTO and the configurations necessary to run the proyect. All examples code use T4 text anotation. Copy the code from the example and replace the <#=ClassName#> and <#=PluralClassName#> with the name of your class and its plural form.
 ---
 
 # API Create
 
 ## Set the DbContext into the AppDbContext class
-Open the AppDbContext file and add the DbSet line. 
+At the BackEnd.API proyect, open the AppDbContext file and add the DbSet line. 
 
 ```csharp   
     public DbSet<<#=ClassName#>> <#=PluralClassName#> { get; set; }
 ```    
 
 ## Create the DTO
-Create the DTO file into the DTOs folder with the name of the class and suffix "DTO". Copy the properties from the model class and remove any navigation properties. You can also add data annotations if needed.
+At the Shared proyect, create the DTO file into the DTOs folder with the name of the class and suffix "DTO". Copy the properties from the model class and remove any navigation properties. You can also add data annotations if needed.
 
 ```csharp
 using System.ComponentModel.DataAnnotations;
@@ -28,11 +28,11 @@ namespace Shared
 ```
 
 ## Create the Controller
-Create the controller file with the name of the class in plural.
+At the BackEnd.API proyect, create the controller file into the Controllers folder with the name of the class in plural and suffix "Controller".
 
 ```csharp
-using AutoMapper;
 using BackEnd.API.Data;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shared;
@@ -44,19 +44,32 @@ namespace BackEnd.API.Controllers
     public class <#=PluralClassName#>Controller : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public <#=PluralClassName#>Controller(AppDbContext context, IMapper mapper)
+        public <#=PluralClassName#>Controller(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
+        {
+            var contact = await _context.<#=PluralClassName#>.FindAsync(id);
+            if (contact == null)
+            {
+                return NotFound(new GeneralResponse(false, $"Not Found <#=ClassName#> Id: {id} to delete."));
+            }
+
+            _context.<#=PluralClassName#>.Remove(contact);
+            await _context.SaveChangesAsync();
+
+            return Ok(new GeneralResponse(true, $"<#=ClassName#> Id: {id} was deleted!"));
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<<#=ClassName#>DTO>>> Get<#=PluralClassName#>()
         {
             var allItems = await _context.<#=PluralClassName#>.ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<<#=ClassName#>>, IEnumerable<<#=ClassName#>DTO>>(allItems));
+            return Ok(allItems.Adapt<List<<#=ClassName#>DTO>>());
         }
 
         [HttpGet("{id}")]
@@ -69,7 +82,7 @@ namespace BackEnd.API.Controllers
                 return NotFound(new GeneralResponse(false, $"<#=ClassName#> Id: {id} not found."));
             }
 
-            return Ok(_mapper.Map<<#=ClassName#>, <#=ClassName#>DTO>(oneItem));
+            return Ok(oneItem.Adapt<<#=ClassName#>DTO>());
         }
 
         [HttpPut("{id}")]
@@ -80,7 +93,7 @@ namespace BackEnd.API.Controllers
                 return BadRequest(new GeneralResponse(false, $"<#=ClassName#> Id: {id} mismatch."));
             }
 
-            _context.Entry(_mapper.Map<<#=ClassName#>DTO, <#=ClassName#>>(toUpdateDTO)).State = EntityState.Modified;
+            _context.Entry(toUpdateDTO.Adapt<<#=ClassName#>>()).State = EntityState.Modified;
 
             try
             {
@@ -110,32 +123,10 @@ namespace BackEnd.API.Controllers
             return Ok(new GeneralResponse(true, $"<#=ClassName#> Id: {newItem.Entity.Id} was created!"));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
-        {
-            var contact = await _context.<#=PluralClassName#>.FindAsync(id);
-            if (contact == null)
-            {
-                return NotFound(new GeneralResponse(false, $"Not Found <#=ClassName#> Id: {id} to delete."));
-            }
-
-            _context.<#=PluralClassName#>.Remove(contact);
-            await _context.SaveChangesAsync();
-
-            return Ok(new GeneralResponse(true, $"<#=ClassName#> Id: {id} was deleted!"));
-        }
-
         private bool <#=ClassName#>Exists(int id)
         {
             return _context.<#=PluralClassName#>.Any(e => e.Id == id);
         }
     }
 }
-```
-## Set the DTO into the Mapping Profile
-Open the Mapping Profile file and add the mapping between the model and the DTO. 
-
-```csharp   
-    CreateMap<<#=ClassName#>, <#=ClassName#>DTO>();
-    CreateMap<<#=ClassName#>DTO, <#=ClassName#>>();
-```        
+```      
