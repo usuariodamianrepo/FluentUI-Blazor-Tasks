@@ -3,7 +3,8 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Shared;
+using Shared.DTOs;
+using Shared.Responses;
 
 namespace BackEnd.API.Controllers
 {

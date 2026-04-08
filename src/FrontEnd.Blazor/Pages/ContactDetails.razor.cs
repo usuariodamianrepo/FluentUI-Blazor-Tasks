@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Shared;
+using Shared.DTOs;
 using System.Text.Json;
 
 namespace FrontEnd.Blazor.Pages

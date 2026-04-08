@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Shared;
+using Shared.DTOs;
 
 namespace FrontEnd.Blazor.Pages
 {

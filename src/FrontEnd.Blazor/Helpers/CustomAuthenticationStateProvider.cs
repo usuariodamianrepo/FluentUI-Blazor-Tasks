@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using Shared;
+using Shared.DTOs;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 

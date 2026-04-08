@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Shared;
+using Shared.DTOs;
 using Microsoft.AspNetCore.Components.Forms;
 
 namespace FrontEnd.Blazor.Pages

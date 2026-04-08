@@ -1,4 +1,4 @@
-﻿namespace Shared
+﻿namespace Shared.DTOs
 {
     public record CustomUserClaimsDTO(
         string Id = null!,

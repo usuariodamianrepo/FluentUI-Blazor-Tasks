@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared;
+using Shared.DTOs;
+using Shared.Responses;
 
 namespace BackEnd.API.Controllers
 {

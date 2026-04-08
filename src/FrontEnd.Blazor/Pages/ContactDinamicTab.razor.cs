@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Shared;
-using System.Text.Json;
+using Shared.DTOs;
+using Shared.Responses;
 using static FrontEnd.Blazor.Helpers.Emuns;
 
 namespace FrontEnd.Blazor.Pages

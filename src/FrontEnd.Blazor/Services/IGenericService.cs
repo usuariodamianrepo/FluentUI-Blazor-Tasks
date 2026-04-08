@@ -1,4 +1,4 @@
-﻿using Shared;
+﻿using Shared.Responses;
 
 namespace FrontEnd.Blazor.Services
 {

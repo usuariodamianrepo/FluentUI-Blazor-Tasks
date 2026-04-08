@@ -2,7 +2,8 @@
 using FrontEnd.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
-using Shared;
+using Shared.DTOs;
+using Shared.Responses;
 
 namespace FrontEnd.Blazor.Pages
 {

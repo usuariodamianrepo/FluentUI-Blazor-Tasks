@@ -1,4 +1,5 @@
-﻿using Shared;
+﻿using Shared.DTOs;
+using Shared.Responses;
 
 namespace FrontEnd.Blazor.Services
 {

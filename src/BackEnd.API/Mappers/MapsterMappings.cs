@@ -1,7 +1,7 @@
 ﻿
 using BackEnd.API.Data;
 using Mapster;
-using Shared;
+using Shared.DTOs;
 
 namespace BackEnd.Api.Mappers
 {

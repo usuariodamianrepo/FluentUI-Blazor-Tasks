@@ -1,5 +1,5 @@
 ﻿using FrontEnd.Blazor.Helpers;
-using Shared;
+using Shared.Responses;
 using System.Net.Http.Json;
 
 namespace FrontEnd.Blazor.Services

@@ -1,5 +1,5 @@
 ﻿using FrontEnd.Blazor.Services;
-using Shared;
+using Shared.DTOs;
 using System.Net;
 
 namespace FrontEnd.Blazor.Helpers

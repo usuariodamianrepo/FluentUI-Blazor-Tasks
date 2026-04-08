@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Shared;
+using Shared.DTOs;
+using Shared.Responses;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -75,12 +76,14 @@ namespace BackEnd.API.Controllers
         [HttpPost("refresh-token")]
         public async Task<ActionResult<LoginResponse>> RefreshTokenAsync([FromBody] RefreshTokenDTO token)
         {
-            if (token is null) return new LoginResponse(false, "Model is empty");
+            if (token is null)
+                return new LoginResponse(false, "Model is empty");
 
             var findToken = await _context.RefreshTokenInfos.FirstOrDefaultAsync(x =>
                 x.Token!.Equals(token.Token));
 
-            if (findToken is null) return new LoginResponse(false, "Refresh token is required");
+            if (findToken is null)
+                return new LoginResponse(false, "Refresh token is required");
 
             var user = await _context.AppUsers.FirstOrDefaultAsync(x =>
                 x.Id == findToken.UserId);
@@ -89,17 +92,23 @@ namespace BackEnd.API.Controllers
                 return new LoginResponse(false, "Refresh token could not be generated because user not found");
 
             var userRole = await FindUserRole(user.Id);
+            if (userRole is null)
+                return new LoginResponse(false, "User role not found");
+
             var roleName = await FindRoleName(userRole.RoleId);
+            if (roleName is null)
+                return new LoginResponse(false, "Role not found");
+
             string jwtToken = GenerateToken(user, roleName.Name!);
             string refreshToken = GenerateResfreshToken();
 
-            var updateRefreshToken = await _context.RefreshTokenInfos.FirstOrDefaultAsync(x =>
-                x.UserId == user.Id);
+            var updateRefreshToken = await _context.RefreshTokenInfos.FirstOrDefaultAsync(x => x.UserId == user.Id);
             if (updateRefreshToken is null)
                 return new LoginResponse(false, "Refresh token could not be generated because user has not signin");
 
             updateRefreshToken.Token = refreshToken;
             await _context.SaveChangesAsync();
+
             return new LoginResponse(true, "Token refreshed sucessful", jwtToken, refreshToken);
         }
 
@@ -146,11 +155,12 @@ namespace BackEnd.API.Controllers
 
         private static string GenerateResfreshToken() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
-        private async Task<AppRole> FindRoleName(int roleId) =>
+        private async Task<AppRole?> FindRoleName(int roleId) =>
             await _context.AppRoles.FirstOrDefaultAsync(x => x.Id == roleId);
 
-        private async Task<AppUser> FindUserByEmail(string email) => await _context.AppUsers.FirstOrDefaultAsync(u => u.Email.Equals(email));
-        private async Task<AppUserRole> FindUserRole(int userId) =>
+        private async Task<AppUser?> FindUserByEmail(string email) =>
+            await _context.AppUsers.FirstOrDefaultAsync(u => u.Email!.Equals(email));
+        private async Task<AppUserRole?> FindUserRole(int userId) =>
             await _context.AppUserRoles.FirstOrDefaultAsync(x => x.UserId == userId);
 
         private string GenerateToken(AppUser user, string role)

@@ -1,6 +1,7 @@
 ﻿using FrontEnd.Blazor.Helpers;
 using Microsoft.VisualBasic;
-using Shared;
+using Shared.DTOs;
+using Shared.Responses;
 using System;
 using System.Net.Http.Json;
 
