@@ -1,6 +1,6 @@
 ---
 name: api-rest
-description: Create its API REST form specific class, this include the controller, the DTO and the configurations necessary to run the proyect. All examples code use T4 text anotation. Copy the code from the example and replace the <#=ClassName#> and <#=PluralClassName#> with the name of your class and its plural form.
+description: Create an API REST from specific class, this include the controller, the DTO and the configurations necessary to run the proyect. All examples code use T4 text anotation. Copy the code of example and replace the <#=ClassName#> and <#=PluralClassName#> with the name of your class and its plural form.
 ---
 
 # API Create
@@ -118,7 +118,7 @@ namespace BackEnd.API.Controllers
         [HttpPost]
         public async Task<ActionResult<GeneralResponse>> Post<#=ClassName#>(<#=ClassName#>DTO toAdd)
         {
-            var newItem = _context.<#=PluralClassName#>.Add(_mapper.Map<<#=ClassName#>DTO, <#=ClassName#>>(toAdd));
+            var newItem = _context.<#=PluralClassName#>.Add(toAdd.Adapt<<#=ClassName#>>());
             await _context.SaveChangesAsync();
 
             return Ok(new GeneralResponse(true, $"<#=ClassName#> Id: {newItem.Entity.Id} was created!"));
