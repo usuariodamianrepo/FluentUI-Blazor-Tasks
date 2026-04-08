@@ -18,7 +18,7 @@ At the Shared proyect, create the DTO file into the DTOs folder with the name of
 ```csharp
 using System.ComponentModel.DataAnnotations;
 
-namespace Shared
+namespace Shared.DTOs
 {
     public sealed class <#=ClassName#>DTO
     {
@@ -35,7 +35,8 @@ using BackEnd.API.Data;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Shared;
+using Shared.DTOs;
+using Shared.Responses;
 
 namespace BackEnd.API.Controllers
 {
