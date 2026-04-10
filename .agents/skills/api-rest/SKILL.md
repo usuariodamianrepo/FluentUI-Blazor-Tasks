@@ -52,7 +52,7 @@ namespace BackEnd.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<GeneralResponse>> DeleteContact(int id)
+        public async Task<ActionResult<GeneralResponse>> Delete<#=ClassName#>(int id)
         {
             var contact = await _context.<#=PluralClassName#>.FindAsync(id);
             if (contact == null)
@@ -64,6 +64,21 @@ namespace BackEnd.API.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new GeneralResponse(true, $"<#=ClassName#> Id: {id} was deleted!"));
+        }
+
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<<#=ClassName#>>>> GetByFilter<#=PluralClassName#>(
+            [FromQuery] string? name)
+        {
+            var query = _context.<#=PluralClassName#>.AsQueryable();
+
+            // Example of filter by name, you can add more filters as needed
+            //if (!string.IsNullOrWhiteSpace(name))
+            //    query = query.Where(t => t.name.Contains(name));
+
+            var filteredItems = await query.Take(100).ToListAsync();
+
+            return Ok(filteredItems.Adapt<IEnumerable<<#=ClassName#>DTO>>());
         }
 
         [HttpGet]
