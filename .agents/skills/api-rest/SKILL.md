@@ -6,13 +6,15 @@ description: Create an API REST from specific class, this include the controller
 # API Create
 
 ## Set the DbContext into the AppDbContext class
-At the BackEnd.API proyect, open the AppDbContext file and add the DbSet line. 
 
-```csharp   
+At the BackEnd.API proyect, open the AppDbContext file and add the DbSet line.
+
+```csharp
     public DbSet<<#=ClassName#>> <#=PluralClassName#> { get; set; }
-```    
+```
 
 ## Create the DTO
+
 At the Shared proyect, create the DTO file into the DTOs folder with the name of the class and suffix "DTO". Copy the properties from the model class and remove any navigation properties. You can also add data annotations if needed.
 
 ```csharp
@@ -28,6 +30,7 @@ namespace Shared.DTOs
 ```
 
 ## Create the Controller
+
 At the BackEnd.API proyect, create the controller file into the Controllers folder with the name of the class in plural and suffix "Controller".
 
 ```csharp
@@ -145,4 +148,4 @@ namespace BackEnd.API.Controllers
         }
     }
 }
-```      
+```
