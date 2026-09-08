@@ -30,3 +30,7 @@ The frontend should remain responsible for presentation and client interaction, 
 ## Database Documentation
 
 Database creation documentation and scripts are located in the `Documentation` folder. The database is intended to be initialized in SQL Server before using the application.
+
+## AI tooling resources
+
+- **Skills** — `.agents/skills/*/SKILL.md`: step-by-step task recipes. Scaffolders: `api-rest`, `ui-crud-splitter`
