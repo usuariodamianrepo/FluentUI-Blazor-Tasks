@@ -1,11 +1,10 @@
-using BackEnd.Api.Mappers;
-
 using BackEnd.API.Data;
 using BackEnd.API.Helpers;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,7 +40,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorWasm",
         builder => builder
-        .WithOrigins("http://localhost:5132") // Blazor default dev URL
+        .WithOrigins("https://localhost:7194","http://localhost:5132") // Blazor default dev URL
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
@@ -53,11 +52,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowBlazorWasm");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
