@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.12.12308.306 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackEnd.API", "src\BackEnd.API\BackEnd.API.csproj", "{1624CED3-207F-4ECB-A004-01DCFF1EBF01}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{A98B702B-B394-47AA-BA9B-F67C12E59312}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrontEnd.Blazor", "src\FrontEnd.Blazor\FrontEnd.Blazor.csproj", "{5B908769-8B33-41E8-88E1-83564D6154E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "src\AppHost\AppHost.csproj", "{495D8B0C-95DD-4DCF-92FF-6B70CF9BFFE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{5B908769-8B33-41E8-88E1-83564D6154E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B908769-8B33-41E8-88E1-83564D6154E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B908769-8B33-41E8-88E1-83564D6154E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{495D8B0C-95DD-4DCF-92FF-6B70CF9BFFE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{495D8B0C-95DD-4DCF-92FF-6B70CF9BFFE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{495D8B0C-95DD-4DCF-92FF-6B70CF9BFFE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{495D8B0C-95DD-4DCF-92FF-6B70CF9BFFE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
